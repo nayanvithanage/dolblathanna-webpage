@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dolblathanna | The Golden Valley of Flowers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="app">
+        <canvas id="three-canvas"></canvas>
+        
+        <header>
+            <nav id="navbar">
+                <div class="logo-container">
+                    <img src="./brand/logo.png" alt="Dolblathanna Logo" class="logo">
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#rooms">Stay</a></li>
+                    <li><a href="#rentals">Explore</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <section id="hero" class="section">
+                <div class="glass-overlay">
+                    <h1 id="hero-title"></h1>
+                    <p id="hero-subtitle"></p>
+                    <div class="cta-group">
+                        <a href="#rooms" class="btn primary">Discover More</a>
+                        <a href="#contact" class="btn secondary">Book Now</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rooms" class="section">
+                <div class="container">
+                    <h2 class="section-title">The Stay</h2>
+                    <div id="rooms-grid" class="rooms-grid"></div>
+                </div>
+            </section>
+
+            <section id="rentals" class="section">
+                <div class="container">
+                    <h2 class="section-title">The Journey</h2>
+                    <p id="rentals-subtitle" class="section-subtitle"></p>
+                    <div id="rentals-grid" class="rentals-grid"></div>
+                </div>
+            </section>
+
+            <section id="contact" class="section">
+                <div class="container">
+                    <h2 class="section-title">Get in Touch</h2>
+                    <div class="contact-layout">
+                        <div class="contact-info">
+                            <div id="contact-details"></div>
+                            <div id="social-links" class="social-links"></div>
+                        </div>
+                        <div class="map-placeholder" id="map-container">
+                            <!-- Map will be injected or represented here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Dolblathanna. All rights reserved.</p>
+        </footer>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
