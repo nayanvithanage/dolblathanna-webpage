@@ -87,7 +87,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 // Add some "Dolblathanna" atmosphere - Floating particles as "flowers"
-const particlesCount = 2000;
+const isMobile = window.innerWidth < 768;
+const particlesCount = isMobile ? 800 : 2000;
 const positions = new Float32Array(particlesCount * 3);
 const colors = new Float32Array(particlesCount * 3);
 const gold = new THREE.Color(config.brand.colors.primary);

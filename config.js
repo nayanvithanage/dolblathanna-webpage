@@ -35,7 +35,7 @@ export const config = {
             { id: 2, name: "Garden Villa", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=1200", description: "Elegant comfort tailored for your stay." },
             { id: 3, name: "Ocean Breeze", image: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=1200", description: "Wake up to the sound of the waves." },
             { id: 4, name: "Sunset Loft", image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=1200", description: "Perfect for long stays and digital nomads." },
-            { id: 5, name: "Royal Hibiscus", image: "https://images.unsplash.com/photo-1571011263884-3c87f48e9c4c?auto=format&fit=crop&q=80&w=1200", description: "Our most exclusive experience." }
+            { id: 5, name: "Royal Hibiscus", image: "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=1200", description: "Our most exclusive experience." }
         ],
         rentals: {
             title: "Explore Ahangama",
