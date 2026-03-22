@@ -336,10 +336,12 @@ h1, h2, h3 {
     }
 
     #hero-title {
-        font-size: clamp(2rem, 10vw, 2.5rem) !important;
-        line-height: 1.2;
-        letter-spacing: 1px;
-        word-break: break-word;
+        font-size: clamp(1.6rem, 8.5vw, 2.2rem) !important;
+        line-height: 1.1;
+        letter-spacing: 0.5px;
+        word-break: normal;
+        white-space: normal;
+        max-width: 100%;
     }
 
     #hero-subtitle {
