@@ -22,7 +22,9 @@ config.sections.rooms.forEach(room => {
         <img src="${room.image}" alt="${room.name}">
         <div class="room-details">
             <h3>${room.name}</h3>
+            ${room.location ? `<span class="room-location">${room.location}</span>` : ''}
             <p>${room.description}</p>
+            <a href="${room.link || '#'}" class="btn secondary room-link">View Options</a>
         </div>
     `;
     roomsGrid.appendChild(roomEl);
@@ -36,7 +38,7 @@ config.sections.rentals.vehicles.forEach(vehicle => {
         <div class="rental-icon">${vehicle.icon}</div>
         <h3>${vehicle.type}</h3>
         <p>${vehicle.description}</p>
-        <a href="https://wa.me/${config.contact.whatsapp.replace('+', '')}" class="btn secondary" style="margin-top: 1rem; display: inline-block;">Inquire Now</a>
+        <a href="${vehicle.link || '#'}" class="btn secondary" style="margin-top: 1rem; display: inline-block;">${vehicle.link && vehicle.link.startsWith('./') ? 'Read the Guide' : 'View Options'}</a>
     `;
     rentalsGrid.appendChild(vehicleEl);
 });
@@ -54,6 +56,13 @@ if (config.contact.social) {
             <a href="${config.contact.social.facebook}" class="social-item" target="_blank">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                 <span>Facebook</span>
+            </a>`;
+    }
+    if (config.contact.social.instagram) {
+        socialLinks.innerHTML += `
+            <a href="${config.contact.social.instagram}" class="social-item" target="_blank">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                <span>Instagram</span>
             </a>`;
     }
     if (config.contact.social.tiktok) {

@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dolblathanna | The Golden Valley of Flowers</title>
+    <title>Dolblathanna | South Coast Sri Lanka Travel Guide</title>
+    <meta name="description" content="Your local guide to South Coast Sri Lanka — Galle, Unawatuna, Weligama, Mirissa, Ahangama and Tangalle — from the Dolblathanna team, rooted in Ahangama.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./guides-shared/guide.css">
 </head>
 <body>
     <div id="app">
@@ -20,8 +22,9 @@
                 </div>
                 <ul class="nav-links">
                     <li><a href="#hero">Home</a></li>
-                    <li><a href="#rooms">Stay</a></li>
-                    <li><a href="#rentals">Explore</a></li>
+                    <li><a href="./guides/index.html">Guides</a></li>
+                    <li><a href="#rooms">Where to Stay</a></li>
+                    <li><a href="#rentals">Getting Around</a></li>
                     <li><a href="#contact">Contact</a></li>
                 </ul>
             </nav>
@@ -33,24 +36,90 @@
                     <h1 id="hero-title"></h1>
                     <p id="hero-subtitle"></p>
                     <div class="cta-group">
-                        <a href="#rooms" class="btn primary">Discover More</a>
-                        <a href="#contact" class="btn secondary">Book Now</a>
+                        <a href="#guides-teaser" class="btn primary">Plan Your Trip</a>
+                        <a href="#rooms" class="btn secondary">Discover More</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="guides-teaser" class="section">
+                <div class="container">
+                    <span class="guide-eyebrow" style="display: block; text-align: center;">Local Knowledge</span>
+                    <h2 class="section-title">Guides From Our Home in Ahangama</h2>
+                    <p class="section-subtitle">Real, local advice for exploring Sri Lanka's South Coast — written by the Dolblathanna team.</p>
+                    <div class="guides-grid" style="padding: 2rem 0 0; max-width: 1200px;">
+                        <a class="guide-card" href="./guides/best-time-to-surf-ahangama.html">
+                            <div class="guide-card-image">
+                                <img src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&q=80&w=1200" alt="Surfer paddling out at sunrise">
+                            </div>
+                            <div class="guide-card-body">
+                                <h3>Best Time to Surf in Ahangama</h3>
+                                <p>Swell, wind, and crowds — when to paddle out on the south coast.</p>
+                                <span class="guide-card-tag">Surf &amp; Seasons</span>
+                            </div>
+                        </a>
+                        <a class="guide-card" href="./guides/ahangama-day-trip-guide.html">
+                            <div class="guide-card-image">
+                                <img src="https://images.unsplash.com/photo-1778563623975-582b7723d026?auto=format&fit=crop&q=80&w=1200" alt="Traditional stilt fishermen near Koggala on Sri Lanka's south coast, with a Sri Lankan flag">
+                            </div>
+                            <div class="guide-card-body">
+                                <h3>Ahangama Day Trip Guide</h3>
+                                <p>Galle Fort, Koggala Lake, stilt fishermen, and tea country — planned well.</p>
+                                <span class="guide-card-tag">Day Trips</span>
+                            </div>
+                        </a>
+                        <a class="guide-card" href="./guides/sri-lanka-travel-insurance-guide.html">
+                            <div class="guide-card-image">
+                                <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=1200" alt="Passport, documents and travel planning items on a table">
+                            </div>
+                            <div class="guide-card-body">
+                                <h3>Sri Lanka Travel Insurance Guide</h3>
+                                <p>What to check before you fly — surf, scooters, and medical cover.</p>
+                                <span class="guide-card-tag">Trip Planning</span>
+                            </div>
+                        </a>
+                        <a class="guide-card" href="./guides/getting-around-ahangama.html">
+                            <div class="guide-card-image">
+                                <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=1200" alt="Tuk-tuk on a Sri Lankan coastal road">
+                            </div>
+                            <div class="guide-card-body">
+                                <h3>Getting Around Ahangama</h3>
+                                <p>Tuk-tuks, scooters, vans, and trains — how to actually get around.</p>
+                                <span class="guide-card-tag">Transport</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div style="text-align: center; margin-top: 3rem;">
+                        <a href="./guides/index.html" class="btn secondary">See All Guides</a>
                     </div>
                 </div>
             </section>
 
             <section id="rooms" class="section">
                 <div class="container">
-                    <h2 class="section-title">The Stay</h2>
+                    <h2 class="section-title">Where to Stay Down South</h2>
+                    <p class="section-subtitle">Curated recommendations across the South Coast — not our own inventory, just places we'd point a friend to.</p>
                     <div id="rooms-grid" class="rooms-grid"></div>
                 </div>
             </section>
 
             <section id="rentals" class="section">
                 <div class="container">
-                    <h2 class="section-title">The Journey</h2>
+                    <h2 class="section-title">Getting Around Down South</h2>
                     <p id="rentals-subtitle" class="section-subtitle"></p>
                     <div id="rentals-grid" class="rentals-grid"></div>
+                </div>
+            </section>
+
+            <section id="about" class="section">
+                <div class="container" style="max-width: 800px; text-align: center;">
+                    <h2 class="section-title">Our Story</h2>
+                    <p style="font-size: 1.1rem; line-height: 1.8; opacity: 0.9;">
+                        Dolblathanna is a registered hospitality and tourism business rooted in Panchaliya, Ahangama, on Sri Lanka's South Coast.
+                        We're not currently taking bookings as a stay or running a rental fleet — but the local knowledge behind this site is real,
+                        built from years on the ground here. Consider this our way of sharing it: honest guides and recommendations for the towns
+                        we know best, from Hikkaduwa to Tangalle, while we figure out what's next.
+                    </p>
                 </div>
             </section>
 

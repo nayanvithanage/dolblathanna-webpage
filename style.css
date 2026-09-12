@@ -203,6 +203,23 @@ h1, h2, h3 {
     transform: translateY(0);
 }
 
+.room-location {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.7rem;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+}
+
+.room-link {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.85rem;
+}
+
 /* Rentals Grid */
 .rentals-grid {
     display: flex;
