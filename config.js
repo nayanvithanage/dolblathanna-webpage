@@ -11,20 +11,11 @@ export const config = {
         }
     },
     contact: {
-        whatsapp: "+94718109695",
-        email: "shane@dolblathanna.com",
-        phone: "+94912284033",
-        address: "Dolblathanna, Panchaliya, Ahangama, Sri Lanka",
         social: {
             facebook: "https://web.facebook.com/dolblathanna.srilanka/",
             instagram: "https://www.instagram.com/dolblathanna_srilanka",
             tiktok: "https://www.tiktok.com/@dolblathanna_srilanka"
         }
-    },
-    map: {
-        center: { lat: 6.0039846, lng: 80.3814394 },
-        zoom: 17,
-        embedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3967.932665226036!2d80.37656847731081!3d6.00398457846212!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae16b5f8507d28d%3A0x237ea669d62e9816!2sDolblathanna!5e0!3m2!1sen!2slk!4v1774159797376!5m2!1sen!2slk"
     },
     sections: {
         hero: {
@@ -42,7 +33,7 @@ export const config = {
                 location: "Mirissa",
                 image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1200",
                 description: "Small, design-led guesthouses a short walk from Mirissa's curved beach — good for couples who want boutique comfort near the harbour and whale-watching boats.",
-                link: "#" // AFFILIATE LINK PLACEHOLDER: Booking.com property in Mirissa
+                link: "./stay/beachfront-mirissa.html" // Real, verified properties — see stay/beachfront-mirissa.html for affiliate placeholders
             },
             {
                 id: 2,
@@ -50,7 +41,7 @@ export const config = {
                 location: "Weligama",
                 image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=1200",
                 description: "Bunk or private-room surf camps right on Weligama Bay's beginner-friendly break — boards, lessons, and a built-in crowd of fellow travellers included.",
-                link: "#" // AFFILIATE LINK PLACEHOLDER: surf camp booking partner in Weligama
+                link: "./stay/surf-camps-weligama.html" // Real, verified properties — see stay/surf-camps-weligama.html for affiliate placeholders
             },
             {
                 id: 3,
@@ -58,7 +49,7 @@ export const config = {
                 location: "Galle Fort",
                 image: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=1200",
                 description: "Restored Dutch-colonial townhouses inside the fort walls — cobbled lanes, rampart sunsets, and a completely different pace from the beach towns nearby.",
-                link: "#" // AFFILIATE LINK PLACEHOLDER: Booking.com / Agoda property in Galle Fort
+                link: "./stay/heritage-galle-fort.html" // Real, verified properties — see stay/heritage-galle-fort.html for affiliate placeholders
             },
             {
                 id: 4,
@@ -66,7 +57,7 @@ export const config = {
                 location: "Tangalle",
                 image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=1200",
                 description: "Quieter, wilder beaches an hour east of Ahangama — the pick for travellers who want space, fewer crowds, and long empty-sand walks.",
-                link: "#" // AFFILIATE LINK PLACEHOLDER: Booking.com property in Tangalle
+                link: "./stay/beachfront-tangalle.html" // Real, verified properties — see stay/beachfront-tangalle.html for affiliate placeholders
             },
             {
                 id: 5,
@@ -74,7 +65,7 @@ export const config = {
                 location: "Ahangama",
                 image: "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=1200",
                 description: "Our own home base — a mellow surf town with a dense strip of cafes, board rentals, and guesthouses. See our guides for what we actually recommend here.",
-                link: "./guides/index.html" // Internal link for now; AFFILIATE LINK PLACEHOLDER: Ahangama guesthouse booking partner (once approved, may replace internal link)
+                link: "./stay/guesthouses-ahangama.html" // Real, verified properties — see stay/guesthouses-ahangama.html for affiliate placeholders
             }
         ],
         // Recommended ways to get around the region — not an owned fleet. Affiliate placeholders

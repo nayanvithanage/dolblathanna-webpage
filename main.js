@@ -7,9 +7,7 @@ const heroSubtitle = document.getElementById('hero-subtitle');
 const roomsGrid = document.getElementById('rooms-grid');
 const rentalsSubtitle = document.getElementById('rentals-subtitle');
 const rentalsGrid = document.getElementById('rentals-grid');
-const contactDetails = document.getElementById('contact-details');
 const socialLinks = document.getElementById('social-links');
-const mapContainer = document.getElementById('map-container');
 
 // Populate Content
 heroTitle.textContent = config.sections.hero.title;
@@ -43,13 +41,6 @@ config.sections.rentals.vehicles.forEach(vehicle => {
     rentalsGrid.appendChild(vehicleEl);
 });
 
-contactDetails.innerHTML = `
-    <div class="contact-item">📍 ${config.contact.address}</div>
-    <div class="contact-item">📧 ${config.contact.email}</div>
-    <div class="contact-item">📱 ${config.contact.phone}</div>
-    <div class="contact-item">💬 WhatsApp: ${config.contact.whatsapp}</div>
-`;
-
 if (config.contact.social) {
     if (config.contact.social.facebook) {
         socialLinks.innerHTML += `
@@ -73,18 +64,6 @@ if (config.contact.social) {
             </a>`;
     }
 }
-
-mapContainer.innerHTML = `
-    <iframe 
-        src="${config.map.embedUrl}" 
-        width="100%" 
-        height="100%" 
-        style="border:0; border-radius: 20px;" 
-        allowfullscreen="" 
-        loading="lazy" 
-        referrerpolicy="no-referrer-when-downgrade">
-    </iframe>
-`;
 
 // --- THREE.JS SCENE SETUP ---
 const canvas = document.querySelector('#three-canvas');

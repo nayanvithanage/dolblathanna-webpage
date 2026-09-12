@@ -365,6 +365,95 @@ body.guide-body {
     text-decoration: underline;
 }
 
+/* ---- Stay category pages (stay/*.html) ---- */
+.stay-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem 5% 6rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stay-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--glass);
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: transform 0.4s, border-color 0.3s;
+}
+
+.stay-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--gold);
+}
+
+.stay-card-image {
+    height: 220px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.stay-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s;
+}
+
+.stay-card:hover .stay-card-image img {
+    transform: scale(1.08);
+}
+
+.stay-card-body {
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.stay-card-body h3 {
+    font-size: 1.15rem;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.stay-card-location {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.7rem;
+    color: var(--rust);
+    margin-bottom: 0.75rem;
+}
+
+.stay-card-body p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    opacity: 0.85;
+    flex: 1;
+    margin-bottom: 1.25rem;
+}
+
+.stay-card-body .btn {
+    align-self: flex-start;
+    font-size: 0.85rem;
+    padding: 0.6rem 1.5rem;
+}
+
+.stay-note {
+    max-width: 780px;
+    margin: 0 auto 1rem;
+    padding: 0 5%;
+    font-size: 0.85rem;
+    opacity: 0.6;
+    text-align: center;
+}
+
 /* ---- Mobile ---- */
 @media (max-width: 768px) {
     .guide-header {
@@ -398,6 +487,10 @@ body.guide-body {
     }
 
     .guides-grid {
+        padding: 1rem 6% 4rem;
+    }
+
+    .stay-grid {
         padding: 1rem 6% 4rem;
     }
 }
