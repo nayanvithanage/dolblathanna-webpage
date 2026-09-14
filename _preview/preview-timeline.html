@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview — Timeline App Mode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root {
+    --gold: #C5A059;
+    --charcoal: #121212;
+    --rust: #A0522D;
+    --rust-text: #E08A5F; /* lighter rust for small text on dark/photo backgrounds — #A0522D alone
+                              fails contrast at tag/label sizes; keep --rust for solid fills (the
+                              layer-num circle, left borders) where it isn't acting as text color */
+    --white: #F5F5F7;
+    --glass: rgba(255, 255, 255, 0.05);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { overflow-x: hidden; width: 100%; }
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--white);
+    background-color: var(--charcoal);
+}
+h1, h2, h3 { font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 2px; }
+
+
+/* ---- Site chrome (normal website state) ---- */
+#navbar {
+    position: sticky;
+    top: 2.2rem;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 5%;
+    background: linear-gradient(to bottom, rgba(18, 18, 18, 0.95), rgba(18,18,18,0.7));
+    z-index: 100;
+}
+.logo-placeholder { font-family: 'Cinzel', serif; color: var(--gold); letter-spacing: 2px; font-size: 1.1rem; }
+.nav-links { display: flex; list-style: none; gap: 2rem; }
+.nav-links a { color: var(--white); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+.nav-links a:hover { color: var(--gold); }
+
+.section { min-height: 60vh; padding: 60px 5%; }
+.container { max-width: 700px; margin: 0 auto; text-align: center; }
+.section-title { font-size: 1.6rem; margin-bottom: 1rem; }
+
+/* ---- Floating launcher (site layer) ---- */
+.launcher-fab {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 150;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--charcoal);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(197, 160, 89, 0.45);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.launcher-fab:hover { transform: scale(1.08); }
+.launcher-fab.is-hidden { opacity: 0; transform: scale(0.6); pointer-events: none; }
+
+/* ================================================================
+   APP MODE — a full-screen takeover, no site nav, feels like a
+   native app screen. Fixed, covers the entire viewport, its own
+   scroll context.
+   ================================================================ */
+#app-mode {
+    position: fixed;
+    inset: 0;
+    z-index: 250;
+    background: var(--charcoal);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#app-mode.is-open { transform: translateY(0); }
+
+/* Three-zone app bar: back button (left, hidden on the home screen) / logo
+   (always centered) / About Us (always top-right). A 3-column grid with
+   equal side columns keeps the logo genuinely centered regardless of
+   whether the back button is showing. */
+.app-bar {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+    padding: 1.1rem 5%;
+    border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+    background: rgba(18, 18, 18, 0.98);
+}
+.app-back {
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 1.4rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden; /* JS adds .is-visible on every screen, including the timeline home — the
+                            arrow is always shown now since it's the only way to exit app mode */
+}
+.app-back.is-visible { visibility: visible; }
+
+.app-bar-logo {
+    display: flex;
+    justify-content: center;
+}
+.app-bar-logo img {
+    height: 34px;
+    filter: drop-shadow(0 0 6px rgba(197, 160, 89, 0.3));
+}
+
+.app-bar-about {
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    text-align: right;
+    justify-self: end;
+    white-space: nowrap;
+}
+.app-bar-about:hover { color: var(--white); }
+
+.app-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Timeline list (the "everything you need to go through" view) ---- */
+.timeline-list {
+    position: relative;
+    padding: 1.5rem 0 4rem;
+}
+.timeline-intro {
+    padding: 0 6% 1.5rem;
+    text-align: center;
+}
+.timeline-intro h2 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.timeline-intro p { opacity: 0.75; font-size: 0.9rem; }
+
+.timeline-item {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    padding: 0 6%;
+    cursor: pointer;
+}
+
+/* the connecting vertical line + node, like the reference image's feed rail */
+.timeline-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 34px;
+    flex-shrink: 0;
+    position: relative;
+}
+.timeline-rail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: rgba(197, 160, 89, 0.25);
+    transform: translateX(-50%);
+}
+.timeline-item:first-child .timeline-rail::before { top: 50%; }
+.timeline-item:last-child .timeline-rail::before { bottom: 50%; }
+
+.timeline-node {
+    position: relative;
+    z-index: 1;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--charcoal);
+    border: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin: 1.1rem 0;
+    flex-shrink: 0;
+}
+
+/* Full-bleed tile — real photo background with a dark gradient scrim for text
+   legibility, same underlying idea as the existing .room-card overlay pattern
+   already used elsewhere on this site (image + gradient + text on top). */
+.timeline-tile {
+    flex: 1;
+    margin: 0.5rem 0 0.5rem 1rem;
+    border-radius: 14px;
+    min-height: 92px;
+    position: relative;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+}
+.timeline-tile:active { transform: scale(0.98); }
+
+.timeline-tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, rgba(18,18,18,0.88) 0%, rgba(18,18,18,0.55) 55%, rgba(18,18,18,0.15) 100%);
+    transition: background 0.25s ease;
+}
+.timeline-tile:hover::before {
+    background: linear-gradient(100deg, rgba(18,18,18,0.75) 0%, rgba(18,18,18,0.4) 55%, rgba(18,18,18,0.05) 100%);
+}
+
+.timeline-tile-content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    padding: 1.1rem 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--white);
+}
+
+.timeline-tile-text .label {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0.3rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+.timeline-tile-text .blurb {
+    font-size: 0.82rem;
+    opacity: 0.9;
+    line-height: 1.4;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+.timeline-tile-arrow {
+    font-size: 1.3rem;
+    opacity: 0.85;
+    flex-shrink: 0;
+}
+
+/* ---- Topic detail (four-layer content: Guide / Go Deeper / Platforms / Next Up), also inside app-mode ---- */
+/* Capped + centered so wide desktop viewports don't leave the content flush-left with a large dead
+   zone on the right — the .planner-general 640px cap alone only constrained the guide paragraph,
+   not the map/cards/everything else sitting below it at full viewport width. */
+.topic-detail { padding: 1.5rem 6% 4rem; display: none; max-width: 920px; margin: 0 auto; }
+.topic-detail.is-active { display: block; }
+.topic-detail-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; }
+.topic-detail-icon { font-size: 2.2rem; }
+.topic-detail-header h2 { font-size: 1.3rem; color: var(--gold); margin-bottom: 0.3rem; }
+.topic-detail-header p { opacity: 0.8; font-size: 0.9rem; }
+
+.layer-heading {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.72rem;
+    color: var(--rust-text);
+    margin: 2rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.layer-heading .layer-num {
+    background: var(--rust);
+    color: var(--white);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.68rem;
+    font-family: 'Inter', sans-serif;
+}
+.layer-heading:first-of-type { margin-top: 0; }
+
+/* ---- Compare Platforms gets a distinct treatment from the other 3 layers — it's the only layer
+   that actually converts (real affiliate link -> commission), so it needs to visually outrank a
+   plain eyebrow label, not match it. Gold-tinted bordered container + bigger heading + a one-line
+   framing sentence, all of which the other layers deliberately don't get. ---- */
+.cta-section {
+    margin: 2.2rem 0 2rem;
+    padding: 1.4rem 1.3rem 1.6rem;
+    border: 1px solid rgba(197, 160, 89, 0.4);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(197, 160, 89, 0.09), rgba(197, 160, 89, 0.02));
+}
+.cta-section .layer-heading {
+    font-size: 1rem;
+    color: var(--gold);
+    margin: 0 0 1.1rem;
+}
+.cta-section .layer-heading .layer-num {
+    background: var(--gold);
+    width: 24px; height: 24px;
+    font-size: 0.75rem;
+}
+
+.planner-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+.planner-card {
+    display: flex; flex-direction: column;
+    background: var(--glass);
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    border-radius: 14px;
+    padding: 1.4rem;
+    text-decoration: none; color: var(--white);
+}
+.planner-card h3 { font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; }
+.planner-card .fact { font-size: 0.85rem; opacity: 0.85; margin-bottom: 0.3rem; line-height: 1.5; }
+.planner-card .btn {
+    margin-top: 0.8rem; align-self: flex-start;
+    background: transparent; border: 1px solid var(--gold); color: var(--gold);
+    padding: 0.45rem 0.9rem; border-radius: 50px; font-size: 0.78rem; text-decoration: none;
+}
+.planner-card.is-placeholder { border-style: dashed; opacity: 0.85; }
+.offer-badge {
+    display: inline-block; background: rgba(197,160,89,0.15); color: var(--gold);
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 0.2rem 0.55rem; border-radius: 50px; margin-bottom: 0.5rem;
+}
+
+/* ---- "Go Deeper" cards (Layer 2): image-forward, using each sub-guide's real cover photo —
+   distinct from the plain text .planner-card used for platforms, since these are entry points into
+   full guides and should read that way at a glance. ---- */
+.deeper-groups { display: flex; flex-direction: column; gap: 1.6rem; }
+.deeper-group-label {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--white); opacity: 0.65;
+    margin-bottom: 0.7rem; padding-left: 0.1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.deeper-group-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+.deeper-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; }
+.deeper-card {
+    position: relative; display: block; border-radius: 14px; overflow: hidden;
+    height: 190px; text-decoration: none; color: var(--white);
+    background-size: cover; background-position: center;
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.deeper-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(18,18,18,0.15) 30%, rgba(18,18,18,0.92) 100%);
+    transition: background 0.25s ease;
+}
+.deeper-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.4); }
+.deeper-card:hover::before { background: linear-gradient(180deg, rgba(18,18,18,0.05) 30%, rgba(18,18,18,0.85) 100%); }
+.deeper-card-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 1rem 1.1rem; }
+.deeper-card .tag { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--rust-text); margin-bottom: 0.4rem; text-shadow: 0 1px 5px rgba(0,0,0,0.85), 0 1px 2px rgba(0,0,0,0.9); }
+.deeper-card h3 { font-family: 'Inter', sans-serif; font-size: 0.95rem; margin-bottom: 0.3rem; color: var(--white); text-transform: none; letter-spacing: normal; }
+.deeper-card p { font-size: 0.78rem; opacity: 0.85; line-height: 1.4; }
+
+/* ---- Platform comparison cards (Layer 3): a headline banner strip carrying the platform name,
+   professional hover lift (no color gimmicks). Every listed platform renders identically regardless
+   of whether its link is live yet — no status badge/dot signaling "under construction"; a platform
+   with no link/CTA yet is simply not clickable, not visually flagged as incomplete. ---- */
+.platform-cards {
+    display: flex; gap: 1.1rem; overflow-x: auto; padding-bottom: 0.9rem; scroll-snap-type: x proximity;
+    scrollbar-width: thin; scrollbar-color: rgba(197, 160, 89, 0.5) transparent; /* Firefox */
+}
+.platform-cards::-webkit-scrollbar { height: 6px; }
+.platform-cards::-webkit-scrollbar-track { background: transparent; }
+.platform-cards::-webkit-scrollbar-thumb { background: rgba(197, 160, 89, 0.4); border-radius: 10px; }
+.platform-cards::-webkit-scrollbar-thumb:hover { background: rgba(197, 160, 89, 0.65); }
+.platform-card {
+    scroll-snap-align: start; flex: 0 0 250px;
+    display: flex; flex-direction: column;
+    background: var(--glass); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 14px;
+    overflow: hidden; text-decoration: none; color: var(--white);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.platform-card:hover { transform: translateY(-3px); border-color: rgba(197, 160, 89, 0.5); box-shadow: 0 8px 22px rgba(0,0,0,0.35); }
+.platform-card-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    padding: 0.85rem 1.1rem; background: rgba(197, 160, 89, 0.1); border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+}
+.platform-card-banner h3 { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--white); text-transform: none; letter-spacing: normal; margin: 0; }
+.platform-card-body { padding: 1.1rem; flex: 1; display: flex; flex-direction: column; }
+.platform-card-body p { font-size: 0.85rem; opacity: 0.85; line-height: 1.5; margin-bottom: 0.9rem; }
+.platform-card-body .btn { margin-top: auto; align-self: flex-start; }
+
+/* ---- Topic map: locked (no drag/scroll/zoom) Leaflet embed showing real recommended places,
+   sits right after Layer 1 (General Guide). "Static" in feel, real pinned coordinates underneath —
+   see the topic's `map.places` data, sourced from OpenStreetMap Nominatim lookups (verified, not
+   guessed), matching places already named in that topic's guide content. ---- */
+.topic-map-wrap { margin: 1.2rem 0 0; border-radius: 14px; overflow: hidden; border: 1px solid rgba(197, 160, 89, 0.2); position: relative; }
+.topic-map { height: 260px; width: 100%; background: var(--glass); }
+.topic-map-caption { padding: 0.6rem 1rem; font-size: 0.72rem; opacity: 0.6; background: rgba(18,18,18,0.6); }
+.leaflet-marker-pin {
+    background: var(--gold); color: var(--charcoal); border: 2px solid var(--charcoal);
+    border-radius: 50% 50% 50% 0; width: 26px; height: 26px; transform: rotate(-45deg);
+    display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.leaflet-marker-pin span { transform: rotate(45deg); }
+.leaflet-popup-content-wrapper { background: var(--charcoal); color: var(--white); border-radius: 8px; }
+.leaflet-popup-content { font-family: 'Inter', sans-serif; font-size: 0.82rem; margin: 0.6rem 0.8rem; }
+.leaflet-popup-content strong { color: var(--gold); }
+.leaflet-popup-tip { background: var(--charcoal); }
+
+.planner-general p { line-height: 1.7; opacity: 0.85; margin-bottom: 1rem; font-size: 0.9rem; max-width: 68ch; }
+.planner-readmore { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.8rem; }
+.planner-readmore a {
+    color: var(--white); text-decoration: none; font-size: 0.85rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    background: var(--glass);
+    border-radius: 10px;
+    border-left: 3px solid var(--rust);
+}
+.planner-readmore .browse-all { border-left-color: var(--gold); font-weight: 600; }
+
+.planner-recommendations { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+.planner-radar-item {
+    border: 1px dashed rgba(197, 160, 89, 0.35);
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    opacity: 0.85;
+}
+.planner-radar-item .tag { display: inline-block; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--rust-text); margin-bottom: 0.4rem; }
+.planner-radar-item h4 { font-size: 0.9rem; margin-bottom: 0.4rem; font-family: 'Inter', sans-serif; }
+.planner-radar-item p { font-size: 0.82rem; opacity: 0.8; line-height: 1.5; }
+.no-recs-note { opacity: 0.6; font-size: 0.85rem; font-style: italic; }
+</style>
+</head>
+<body>
+
+<header>
+    <nav id="navbar">
+        <div class="logo-placeholder">Dolblathanna</div>
+        <ul class="nav-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#">Guides</a></li>
+            <li><a href="#about-contact">About &amp; Contact</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section id="hero" class="section">
+        <div class="container">
+            <h1 style="font-size:1.8rem; margin-bottom:0.5rem;">Plan Your Trip</h1>
+            <p style="opacity:0.75;">Tap the compass in the corner to explore what your trip needs.</p>
+        </div>
+    </section>
+    <section id="about-contact" class="section">
+        <div class="container">
+            <h2 class="section-title">Our Story</h2>
+            <p style="opacity:0.85; line-height:1.7;">This is the normal website content, sitting underneath app mode. When you enter app mode, this whole page (including the navbar above) is covered by the full-screen takeover — no website chrome visible until you back out.</p>
+        </div>
+    </section>
+</main>
+
+<button id="launcher-fab" class="launcher-fab" type="button" aria-label="Open trip planner" onclick="openAppMode()">🧭</button>
+
+<!-- ================= APP MODE ================= -->
+<div id="app-mode">
+    <div class="app-bar">
+        <button class="app-back" id="app-back-btn" aria-label="Back">←</button>
+        <div class="app-bar-logo"><img src="../brand/logo.png" alt="Dolblathanna"></div>
+        <button class="app-bar-about" id="app-about-btn">About Us</button>
+    </div>
+    <div id="app-scroll" class="app-scroll">
+        <!-- Timeline list screen -->
+        <div id="timeline-screen" class="timeline-list">
+            <div class="timeline-intro">
+                <h2>Your Trip, Step by Step</h2>
+                <p>Everything a South Coast trip needs — go through each one.</p>
+            </div>
+            <div id="timeline-items"></div>
+        </div>
+
+        <!-- Topic detail screen (four layers: Guide / Go Deeper / Platforms / Visitors Also Checked) -->
+        <div id="topic-detail" class="topic-detail">
+            <div class="topic-detail-header">
+                <span id="focus-icon" class="topic-detail-icon"></span>
+                <div>
+                    <h2 id="focus-title"></h2>
+                    <p id="focus-blurb"></p>
+                </div>
+            </div>
+
+            <div class="layer-heading"><span class="layer-num">1</span> The General Guide</div>
+            <div id="planner-general" class="planner-general"></div>
+
+            <div id="topic-map-section" class="topic-map-wrap" style="display:none;">
+                <div id="topic-map" class="topic-map"></div>
+                <div class="topic-map-caption">Places mentioned in this guide — tap a pin for a quick note.</div>
+            </div>
+
+            <div class="layer-heading"><span class="layer-num">2</span> Go Deeper</div>
+            <div id="planner-recommendations" class="deeper-groups"></div>
+
+            <div class="cta-section">
+                <div class="layer-heading"><span class="layer-num">3</span> <span id="cta-label"></span></div>
+                <div id="planner-cards" class="platform-cards"></div>
+            </div>
+
+            <div class="layer-heading"><span class="layer-num">4</span> Visitors Also Checked</div>
+            <div id="planner-nextup" class="planner-recommendations"></div>
+        </div>
+
+        <!-- About Us screen -->
+        <div id="about-screen" class="topic-detail">
+            <h2 style="font-size:1.3rem; color:var(--gold); margin-bottom:1.2rem;">Our Story</h2>
+            <p style="opacity:0.85; line-height:1.75; font-size:0.92rem; margin-bottom:1.5rem;">
+                Dolblathanna is a registered hospitality and tourism business rooted in Panchaliya,
+                Ahangama, on Sri Lanka's South Coast. We're not currently taking bookings — but the
+                local knowledge behind this site is real. This is our way of sharing it.
+            </p>
+            <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
+                <a href="#" class="planner-card" style="flex:none; padding:0.7rem 1.2rem;">Facebook</a>
+                <a href="#" class="planner-card" style="flex:none; padding:0.7rem 1.2rem;">Instagram</a>
+                <a href="#" class="planner-card" style="flex:none; padding:0.7rem 1.2rem;">TikTok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const nodes = {
+    'flights': {
+        id: 'flights', label: 'Flights', icon: '✈️', blurb: 'Getting to Sri Lanka in the first place.',
+        platforms: [], general: { intro: '', readMore: [] }, recommendations: { source: null, groups: [], radar: [] },
+        nextUp: [{ id: 'airport-transfer', label: 'Airport Transfer', icon: '🚐', blurb: "Landed — now get from Bandaranaike International to the coast." }]
+    },
+    'where-to-stay': {
+        id: 'where-to-stay', label: 'Where to Stay', icon: '🏡',
+        blurb: 'Real, verified places across the South Coast towns.',
+        platforms: [{ name: 'Booking.com', description: 'The widest selection of verified guesthouses and hotels across the South Coast.', link: '#', cta: 'Browse Stays' }],
+        general: { intro: '', readMore: [{ label: 'Ahangama vs. Weligama: Where to Stay', href: '#' }] },
+        recommendations: { source: 'rooms', groups: [], radar: [] },
+        nextUp: [{ id: 'getting-around', label: 'Getting Around', icon: '🛺', blurb: 'Once you’ve picked a base, work out how to move between towns.' }],
+        ctaLabel: 'Book Your Stay'
+    },
+    'getting-around': {
+        id: 'getting-around', label: 'Getting Around', icon: '🛺',
+        blurb: 'Tuk-tuks, scooters, vans, and trains between towns.',
+        // Layer 1 — General Guide: intriguing, "dig deeper" tone, teases what's below rather than
+        // front-loading platform/price detail. Written like the existing 13 guides.
+        general: {
+            intro: "The South Coast looks small on a map — a string of beach towns you could trace with a finger in under a minute. On the ground it moves at its own pace entirely. Some visitors get around on the back of a tuk-tuk with the wind in their face; others catch the coastal train with the doors wide open and the ocean close enough to touch; others still hand the whole thing to a driver and watch it go by from the back seat. There's no one right way to move through this coast — only the way that fits the trip you're actually having. Here's how to figure out which one that is, what it costs, and a couple of real promotions worth knowing about before you book anything.",
+            readMore: []
+        },
+        // Map — real, verified coordinates (OpenStreetMap Nominatim lookups, 2026-09-14), one pin per
+        // place already named in this topic's guide content below. Locked (no drag/scroll/zoom) —
+        // reads as a fixed graphic, not an interactive widget.
+        map: {
+            center: [5.975, 80.40], zoom: 10,
+            places: [
+                { name: 'Ahangama', lat: 5.9735163, lng: 80.3622999, note: 'Home base — tuk-tuks, scooters, and the coastal train station.' },
+                { name: 'Weligama', lat: 5.9751305, lng: 80.4291390, note: "Beginner-friendly surf, a short hop by tuk-tuk or train." },
+                { name: 'Mirissa', lat: 5.9493634, lng: 80.4558128, note: 'Whale watching harbour — see the Tours & Activities topic.' },
+                { name: 'Galle Fort', lat: 6.0304681, lng: 80.2169190, note: '30–40 min by tuk-tuk, car, or the coastal train.' },
+                { name: 'Matara', lat: 5.9478220, lng: 80.5482919, note: 'Southern terminus of the coastal railway line.' },
+                { name: 'Koggala Lake', lat: 6.0023673, lng: 80.3319389, note: 'Boat trips and stilt fishermen — a popular day-trip stop.' }
+            ]
+        },
+        // Layer 2 — Go Deeper: entry-point cards into this topic's own sub-guides, grouped under
+        // labeled sub-categories rather than one flat row — reads as more depth/structure and gives
+        // future guides (e.g. a second day-trip writeup) an obvious place to slot in without a
+        // redesign. Each card uses its guide's own real cover image (same URL as the guide page
+        // itself, not a new/invented photo) so it reads as a preview of the actual article.
+        recommendations: {
+            source: null,
+            groups: [
+                {
+                    label: 'Daily Transport',
+                    items: [
+                        { name: 'Getting Around Ahangama', description: 'Tuk-tuks, scooters, and private vans — the full breakdown of costs, what to rent, and our honest recommendation.', href: '../guides/getting-around-ahangama.html', image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=600' }
+                    ]
+                },
+                {
+                    label: 'Scenic Journeys',
+                    items: [
+                        { name: 'The Galle–Matara Coastal Train', description: 'One of the great budget travel experiences on this coast — open doors, ocean views, and how to actually ride it.', href: '../guides/coastal-train-galle-matara.html', image: 'https://images.unsplash.com/photo-1781749809764-b8f3e740dbe5?auto=format&fit=crop&q=80&w=600' }
+                    ]
+                },
+                {
+                    label: 'Day Trips & Excursions',
+                    items: [
+                        { name: 'Ahangama Day Trip Guide', description: "Galle Fort, Koggala Lake, Yala safari — what's realistic as a day trip and how to get there.", href: '../guides/ahangama-day-trip-guide.html', image: 'https://images.unsplash.com/photo-1778563623975-582b7723d026?auto=format&fit=crop&q=80&w=600' },
+                        { name: 'Yala Safari Guide', description: 'Leopard density, best season, drive time, and entry fees — everything to plan a Yala day from Ahangama.', href: '../guides/yala-safari-guide.html', image: 'https://images.unsplash.com/photo-1566708627877-859df13ae63e?auto=format&fit=crop&q=80&w=600' }
+                    ]
+                }
+            ],
+            radar: []
+        },
+        // Layer 3 — Compare Platforms: scrollable comparison cards, one per real platform we're
+        // choosing to list — Kiwitaxi and Welcome Pickups are listed now with just a description, no
+        // link/CTA yet (link added once each is verified via 1-available-platforms.md), and rendered
+        // as an ordinary-looking card, not a visibly "pending"/under-construction one — being listed
+        // at all is the point, the visitor doesn't need to see our backend timeline for it.
+        // IMPORTANT — no discount/offer copy here unless it's a verified CUSTOMER-facing promo (a real
+        // coupon/seasonal sale). The 9-11% / 8-9% / 10% numbers in the platform-rules docs are OUR
+        // affiliate commission, not something a traveler is offered — never surface those as a
+        // customer discount. `offer` stays null until someone actually checks each platform's own
+        // dashboard/site for a real current customer promo (per [[feedback-verify-before-trusting-docs]]).
+        platforms: [
+            { name: 'Klook', description: 'Compare Colombo airport transfer options and book a driver before you land instead of negotiating on arrival.', offer: null, link: 'https://klook.tpx.lv/jxCzf4uN', cta: 'Check Offers & Prices' },
+            { name: 'Kiwitaxi', description: 'A dedicated airport-transfer service covering pickups across Sri Lanka, including the South Coast route from Colombo.', offer: null, link: null, cta: null },
+            { name: 'Welcome Pickups', description: 'Pre-booked, English-speaking drivers who track your flight and meet you at arrivals.', offer: null, link: null, cta: null }
+        ],
+        // Layer 4 — Visitors Also Checked: continuity into the next logical topic in the decision tree.
+        nextUp: [
+            { id: 'tours-activities', label: 'Tours & Activities', icon: '🎟️', blurb: 'Now that you can get there — whale watching, Galle Fort, and surf lessons.' },
+            { id: 'where-to-stay', label: 'Where to Stay', icon: '🏡', blurb: 'Pick a base that puts you close to the transport options you just compared.' }
+        ],
+        ctaLabel: 'Book Your Transport'
+    }
+};
+const sampleRooms = [
+    { name: 'Guesthouses in Ahangama', location: 'Ahangama', description: 'Our own home base — a mellow surf town with a dense strip of cafes and guesthouses.' },
+    { name: 'Surf Camp, Weligama', location: 'Weligama', description: "Bunk or private-room surf camps right on Weligama Bay's beginner-friendly break." }
+];
+// Image credit: all real Unsplash photos already used elsewhere on this site
+// (guide covers / stay listings), reused here for consistency — see the guide
+// pages for the matching alt text. The 4 topics with no existing guide yet
+// (flights, staying-connected, money-currency, safety) use a real but
+// previously-unused Unsplash photo rather than an invented/fake image.
+const allTopics = [
+    { id: 'flights', label: 'Flights', icon: '✈️', blurb: 'Booking the trip itself.',
+      image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=800' },
+    { id: 'airport-transfer', label: 'Airport Transfer', icon: '🚐', blurb: 'From Colombo to the coast.',
+      image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=800' },
+    { id: 'staying-connected', label: 'Staying Connected', icon: '📶', blurb: 'eSIM and mobile data.',
+      image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800' },
+    { id: 'where-to-stay', label: 'Where to Stay', icon: '🏡', blurb: 'Real, verified places to sleep.',
+      image: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&q=80&w=800' },
+    { id: 'getting-around', label: 'Getting Around', icon: '🛺', blurb: 'Tuk-tuks, scooters, and trains.',
+      image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=800' },
+    { id: 'tours-activities', label: 'Tours & Activities', icon: '🎟️', blurb: 'Whale watching, forts, and surf.',
+      image: 'https://images.unsplash.com/photo-1566393009478-ef02c54530a7?auto=format&fit=crop&q=80&w=800' },
+    { id: 'food', label: 'Food', icon: '🍛', blurb: 'Where we actually eat.',
+      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800' },
+    { id: 'travel-insurance', label: 'Travel Insurance', icon: '🩹', blurb: 'What to check before you fly.',
+      image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800' },
+    { id: 'money-currency', label: 'Money & Currency', icon: '💱', blurb: 'ATMs, cards, and cash tips.',
+      image: 'https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&q=80&w=800' },
+    { id: 'packing', label: 'Packing', icon: '🎒', blurb: 'What to actually bring.',
+      image: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?auto=format&fit=crop&q=80&w=800' },
+    { id: 'safety', label: 'Safety & Emergencies', icon: '🚑', blurb: 'What to know just in case.',
+      image: 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?auto=format&fit=crop&q=80&w=800' }
+];
+
+function renderTimeline() {
+    const c = document.getElementById('timeline-items');
+    c.innerHTML = '';
+    allTopics.forEach((t, i) => {
+        const el = document.createElement('div');
+        el.className = 'timeline-item';
+        el.innerHTML = `
+            <div class="timeline-rail"><div class="timeline-node">${t.icon}</div></div>
+            <div class="timeline-tile" style="background-image: url('${t.image}');">
+                <div class="timeline-tile-content">
+                    <div class="timeline-tile-text">
+                        <span class="label">${t.label}</span>
+                        <span class="blurb">${t.blurb}</span>
+                    </div>
+                    <span class="timeline-tile-arrow">›</span>
+                </div>
+            </div>
+        `;
+        el.onclick = () => showTopic(nodes[t.id] ? t.id : 'getting-around');
+        c.appendChild(el);
+    });
+}
+
+// Topic map — locked Leaflet embed (real CartoDB tiles, real pins), shown right after Layer 1 when a
+// topic has `map.places`. Pan/zoom/scroll are disabled at the Leaflet level (dragging, scrollWheelZoom,
+// etc. all false below) so it reads as fixed, but pins stay tappable for their popup note.
+let activeMap = null;
+function renderMap(node) {
+    const section = document.getElementById('topic-map-section');
+    if (!node.map || !node.map.places || node.map.places.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    section.style.display = 'block';
+    // Leaflet needs its container visible+sized before init, and re-init on an already-used div
+    // throws — tear down any previous instance first.
+    if (activeMap) { activeMap.remove(); activeMap = null; }
+    const map = L.map('topic-map', {
+        center: node.map.center, zoom: node.map.zoom,
+        dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
+        boxZoom: false, keyboard: false, zoomControl: false, touchZoom: false, tap: false
+    });
+    // MapTiler "darkmatter" style, using a real API key with origins locked to dolblathanna.com /
+    // localhost / null (file://) in the MapTiler dashboard. Earlier attempts: OSM's main
+    // {s}.tile.openstreetmap.org server hard-403'd (reserved for osm.org, embedding not allowed by its
+    // tile usage policy); CartoDB's free anonymous tiles loaded but got a watermarked "API KEY
+    // REQUIRED" overlay once past their unregistered-usage threshold. MapTiler's key is the real fix,
+    // not a workaround — swap MAPTILER_KEY for an env-injected value once this leaves the mockup stage,
+    // don't leave a raw key sitting in a committed real-site file.
+    const MAPTILER_KEY = 'w57vwKCetfXIZiPyMGu2';
+    L.tileLayer(`https://api.maptiler.com/maps/darkmatter/256/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`, {
+        attribution: '&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> &copy; OpenStreetMap contributors',
+        maxZoom: 14
+    }).addTo(map);
+    const pinIcon = L.divIcon({ className: '', html: '<div class="leaflet-marker-pin"><span>📍</span></div>', iconSize: [26, 26], iconAnchor: [13, 26] });
+    node.map.places.forEach(p => {
+        L.marker([p.lat, p.lng], { icon: pinIcon }).addTo(map)
+            .bindPopup(`<strong>${p.name}</strong><br>${p.note}`);
+    });
+    activeMap = map;
+    // Force a resize pass once the container's real layout settles (it was display:none a moment
+    // ago while hidden behind the timeline screen) — otherwise Leaflet renders the tile grid using a
+    // stale 0-height measurement.
+    setTimeout(() => map.invalidateSize(), 50);
+}
+
+// Layer 1 — General Guide: orienting narrative only. "Read more" links, where present, point to
+// unrelated existing guides on the same broad topic (kept separate from Layer 2's "Go Deeper" cards,
+// which are this topic's own dedicated sub-guides).
+function renderGeneral(node) {
+    const c = document.getElementById('planner-general');
+    c.innerHTML = node.general.intro ? `<p>${node.general.intro}</p>` : '';
+    if (node.general.readMore.length > 0) {
+        const list = document.createElement('ul');
+        list.className = 'planner-readmore';
+        node.general.readMore.forEach(r => { list.innerHTML += `<li><a href="${r.href}">📖 ${r.label}</a></li>`; });
+        c.appendChild(list);
+    }
+}
+// Layer 2 — Go Deeper: entry-point cards into this topic's own full sub-guides (level 3 content),
+// grouped under labeled sub-categories (e.g. "Daily Transport" / "Scenic Journeys" / "Day Trips &
+// Excursions") so the layer reads as a structured set rather than a thin flat row — new guides slot
+// into an existing group's `items` array later without touching the render logic. Falls back to the
+// room listings for Where to Stay's special-cased source.
+function renderRecommendations(node) {
+    const c = document.getElementById('planner-recommendations');
+    c.innerHTML = '';
+    if (node.recommendations.source === 'rooms') {
+        sampleRooms.forEach(r => {
+            c.innerHTML += `<a href="#" class="planner-card"><h3>${r.name}</h3><p class="fact">${r.location}</p><p class="fact">${r.description}</p><span class="btn">View Options</span></a>`;
+        });
+        return;
+    }
+    if (node.recommendations.groups && node.recommendations.groups.length > 0) {
+        node.recommendations.groups.forEach(group => {
+            const groupEl = document.createElement('div');
+            groupEl.className = 'deeper-group';
+            let cardsHtml = '';
+            group.items.forEach(r => {
+                const bg = r.image ? ` style="background-image:url('${r.image}');"` : '';
+                cardsHtml += `<a class="deeper-card"${bg} href="${r.href}">
+                    <div class="deeper-card-content">
+                        <h3>${r.name}</h3>
+                        <p>${r.description}</p>
+                    </div>
+                </a>`;
+            });
+            groupEl.innerHTML = `<div class="deeper-group-label">${group.label}</div><div class="deeper-cards">${cardsHtml}</div>`;
+            c.appendChild(groupEl);
+        });
+        return;
+    }
+    if (node.recommendations.radar.length > 0) {
+        node.recommendations.radar.forEach(r => {
+            c.innerHTML += `<div class="planner-radar-item"><span class="tag">On Our Radar</span><h4>${r.name}</h4><p>${r.description}</p></div>`;
+        });
+        return;
+    }
+    c.innerHTML = `<p class="no-recs-note">We don't have specific recommendations for this yet.</p>`;
+}
+// Layer 3 — Compare Platforms: scrollable comparison cards, each with a name banner. Every platform
+// listed here is shown as a normal, finished-looking card regardless of whether its link is live yet
+// — no "Coming Soon" / status badge signaling the site is under construction, per the user's explicit
+// call: listing a platform at all is the point, the link gets added later without the visitor ever
+// needing to know that timeline. A platform with no `link` yet simply isn't clickable (no href, no
+// CTA button) rather than a dead link or a visibly "pending" state. `offer` only ever holds a
+// verified customer-facing promo — see the data comment above `platforms:` in the node data for why
+// our own commission rate never goes here.
+function renderPlatforms(node) {
+    const c = document.getElementById('planner-cards');
+    c.innerHTML = '';
+    if (node.platforms.length === 0) {
+        c.innerHTML = `<div class="platform-card"><div class="platform-card-banner"><h3>More Options</h3></div><div class="platform-card-body"><p>Browse the rest of our South Coast guides for what's covered so far.</p><a href="../guides/index.html" class="btn">Browse All Guides</a></div></div>`;
+        return;
+    }
+    node.platforms.forEach(p => {
+        const tag = p.link ? 'a' : 'div';
+        const hrefAttr = p.link ? ` href="${p.link}" target="_blank" rel="noopener sponsored"` : '';
+        c.innerHTML += `<${tag} class="platform-card"${hrefAttr}>
+            <div class="platform-card-banner">
+                <h3>${p.name}</h3>
+            </div>
+            <div class="platform-card-body">
+                ${p.offer ? `<span class="offer-badge">${p.offer}</span>` : ''}
+                ${p.description ? `<p>${p.description}</p>` : ''}
+                ${p.link ? `<span class="btn">${p.cta}</span>` : ''}
+            </div>
+        </${tag}>`;
+    });
+}
+// Layer 4 — Visitors Also Checked: continuity strip pointing at the next logical topic/topics.
+function renderNextUp(node) {
+    const c = document.getElementById('planner-nextup');
+    c.innerHTML = '';
+    (node.nextUp || []).forEach(t => {
+        c.innerHTML += `<div class="planner-card" style="cursor:pointer;" onclick="showTopic('${t.id}')">
+            <h3>${t.icon} ${t.label}</h3>
+            <p class="fact">${t.blurb}</p>
+            <span class="btn">Explore</span>
+        </div>`;
+    });
+}
+
+// Three screens live inside app mode: 'timeline' (home), 'detail' (one
+// topic's layers), 'about' — 'detail'/'about' back-arrow returns to
+// 'timeline' (not to each other); 'timeline's back-arrow EXITS app mode
+// back to the real site. The arrow is always visible now — previously it
+// was hidden on the timeline screen with no other way to leave app mode at
+// all (closeAppMode() existed but nothing ever called it — a real dead end,
+// Escape-key-only on desktop and completely unreachable on mobile).
+let appState = 'timeline';
+
+function setAppState(next) {
+    appState = next;
+    document.getElementById('timeline-screen').style.display = next === 'timeline' ? 'block' : 'none';
+    document.getElementById('topic-detail').classList.toggle('is-active', next === 'detail');
+    document.getElementById('about-screen').classList.toggle('is-active', next === 'about');
+    const backBtn = document.getElementById('app-back-btn');
+    backBtn.classList.add('is-visible');
+    // Accurate label for screen readers — on the timeline the arrow closes app mode entirely,
+    // everywhere else it steps back to the timeline, and those are different actions.
+    backBtn.setAttribute('aria-label', next === 'timeline' ? 'Close' : 'Back');
+    document.getElementById('app-scroll').scrollTop = 0;
+}
+
+function showTopic(id) {
+    const node = nodes[id];
+    if (!node) return;
+    document.getElementById('focus-icon').textContent = node.icon;
+    document.getElementById('focus-title').textContent = node.label;
+    document.getElementById('focus-blurb').textContent = node.blurb;
+    // "Compare Platforms" is the layer that actually converts (real affiliate link), so it gets a
+    // topic-specific action heading ("Book Your Transport", "Book Your Stay", etc.) rather than the
+    // generic layer label — set per-node via `ctaLabel`, falling back to a neutral default for topics
+    // that don't have one yet.
+    document.getElementById('cta-label').textContent = node.ctaLabel || 'Compare Your Options';
+    renderGeneral(node);
+    renderRecommendations(node);
+    renderPlatforms(node);
+    renderNextUp(node);
+    setAppState('detail');
+    renderMap(node); // after setAppState so the container is visible before Leaflet measures it
+}
+
+function showAbout() {
+    setAppState('about');
+}
+
+function backInApp() {
+    // 'detail' and 'about' return to the timeline home — no deeper nesting
+    // to unwind, so this doesn't need a history stack. From the timeline
+    // itself, back means leaving app mode entirely (this is "home" — the
+    // only other place back could go is out).
+    if (appState === 'timeline') {
+        closeAppMode();
+    } else {
+        setAppState('timeline');
+    }
+}
+
+function openAppMode() {
+    document.getElementById('app-mode').classList.add('is-open');
+    document.getElementById('launcher-fab').classList.add('is-hidden');
+    document.body.style.overflow = 'hidden';
+    setAppState('timeline');
+}
+function closeAppMode() {
+    document.getElementById('app-mode').classList.remove('is-open');
+    document.getElementById('launcher-fab').classList.remove('is-hidden');
+    document.body.style.overflow = '';
+    setAppState('timeline');
+}
+
+document.getElementById('app-back-btn').addEventListener('click', backInApp);
+document.getElementById('app-about-btn').addEventListener('click', showAbout);
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('app-mode').classList.contains('is-open')) backInApp();
+});
+
+renderTimeline();
+</script>
+
+</body>
+</html>

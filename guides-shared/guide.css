@@ -9,61 +9,185 @@ body.guide-body {
     background-color: var(--charcoal);
 }
 
-/* ---- Guide header (injected by guide-nav.js) ---- */
-.guide-header {
+/* ---- App-bar chrome — SHARED between app-mode itself (index.html's #app-mode .app-bar) and every
+   content page's injected header (guide-nav.js's .guide-app-bar). Both selectors get the identical
+   3-column grid/background/border here so a visitor sees the SAME chrome whether they're inside the
+   full-screen app-mode overlay or reading a standalone guide/product/stay page — that visual
+   continuity is the whole point, so this rule must not drift into two separately-maintained copies.
+   .guide-app-bar additionally gets `position: sticky` (a normal scrolling document, not a fixed
+   full-viewport takeover like #app-mode's own .app-bar, which is positioned by app-mode.css's
+   #app-mode rule instead). */
+.app-bar,
+.guide-app-bar {
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+    padding: 1.1rem 5%;
+    background: rgba(18, 18, 18, 0.98);
+    border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+}
+.guide-app-bar {
     position: sticky;
     top: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1rem 5%;
-    background: rgba(18, 18, 18, 0.9);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(197, 160, 89, 0.2);
     z-index: 100;
 }
 
-.guide-header .logo-container {
+.app-back {
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 1.4rem;
+    cursor: pointer;
+    text-decoration: none;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: center;
+    visibility: hidden; /* app-mode.js adds .is-visible on every screen it renders — content pages'
+                            injected header (guide-nav.js) also adds .is-visible immediately, so this
+                            base state only matters for the brief instant before either script runs */
+}
+.app-back.is-visible { visibility: visible; }
+
+.app-bar-logo {
+    display: flex;
+    justify-content: center;
     text-decoration: none;
 }
-
-.guide-header .logo {
-    height: 44px;
-    filter: drop-shadow(0 0 8px rgba(197, 160, 89, 0.3));
+.app-bar-logo img {
+    height: 34px;
+    filter: drop-shadow(0 0 6px rgba(197, 160, 89, 0.3));
 }
 
-.guide-header .brand-name {
-    font-family: 'Cinzel', serif;
+.app-bar-about {
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--white);
-    font-size: 0.95rem;
-}
-
-.guide-header nav {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.guide-header nav a {
-    color: var(--white);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.85rem;
     letter-spacing: 0.5px;
-    transition: color 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: right;
+    justify-self: end;
     white-space: nowrap;
 }
+.app-bar-about:hover { color: var(--white); }
 
-.guide-header nav a:hover,
-.guide-header nav a.active {
+/* ---- Quick Launcher — floating button + left slide-in drawer listing all 11 topics, shared between
+   app-mode (index.html, everywhere except the timeline itself) and every content page's injected
+   header (guide-nav.js). See guides-shared/quick-launcher.js for the mount logic/markup this styles.
+   z-index sits above both #app-mode (250, app-mode.css) and .guide-app-bar (100, above) so it always
+   floats over whichever chrome is on screen. */
+.quick-launcher-fab {
+    position: fixed;
+    left: 1.1rem;
+    bottom: 1.1rem;
+    z-index: 300;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--charcoal);
+    border: none;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
+}
+.quick-launcher-fab:hover { transform: scale(1.06); }
+.quick-launcher-fab.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: scale(0.85);
+}
+/* Dimmed (not hidden — still tappable) while the page is actively scrolling, back to full opacity
+   ~400ms after scrolling stops (see quick-launcher.js's onScroll). */
+.quick-launcher-fab.is-scrolling { opacity: 0.35; }
+
+.quick-launcher-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 310;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.quick-launcher-scrim.is-open { opacity: 1; visibility: visible; }
+
+.quick-launcher-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 320;
+    width: min(320px, 84vw);
+    background: var(--charcoal);
+    border-right: 1px solid rgba(197, 160, 89, 0.25);
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.quick-launcher-drawer.is-open { transform: translateX(0); }
+
+.quick-launcher-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+    font-family: 'Cinzel', serif;
     color: var(--gold);
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+.quick-launcher-close {
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+}
+
+.quick-launcher-list {
+    padding: 0.5rem 0.6rem 1.5rem;
+}
+.quick-launcher-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    background: none;
+    border: none;
+    color: var(--white);
+    text-align: left;
+    padding: 0.75rem 0.65rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+}
+.quick-launcher-item:hover,
+.quick-launcher-item:focus-visible { background: rgba(197, 160, 89, 0.12); }
+.quick-launcher-item-icon {
+    font-size: 1.2rem;
+    width: 30px;
+    flex-shrink: 0;
+    text-align: center;
 }
 
 /* ---- Guide hero / listing intro ---- */
@@ -196,14 +320,13 @@ body.guide-body {
 }
 
 .guide-article h3 {
-    color: var(--white);
+    color: var(--rust);
     font-family: 'Inter', sans-serif;
     text-transform: none;
     letter-spacing: normal;
     font-size: 1.15rem;
     font-weight: 600;
     margin: 1.75rem 0 0.75rem;
-    color: var(--rust);
 }
 
 .guide-article p {
@@ -305,7 +428,7 @@ body.guide-body {
     border-bottom: none;
 }
 
-/* ---- Related / back-to-guides + Dolblathanna promo strip ---- */
+/* ---- Related / promo strip ---- */
 .guide-stay-cta {
     max-width: 780px;
     margin: 3rem auto 0;
@@ -330,21 +453,233 @@ body.guide-body {
     margin-bottom: 1.5rem;
 }
 
-.back-to-guides {
+/* ==========================================================================
+   Product / service landing pages (e.g. stay/*.html "single offer" pages,
+   yala-safari.html) — DIFFERENT PURPOSE from a guide article: this is the
+   page a visitor lands on from a specific ad/social-post click for one
+   product ("book this exact thing"), not an editorial read. Job order:
+   confirm the offer fast, one dominant CTA to book, THEN comparison/
+   alternatives, THEN related guides at the very bottom — never let
+   secondary content compete with the primary booking CTA for attention.
+   ========================================================================== */
+
+.product-hero {
+    position: relative;
+    min-height: 60vh;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+    padding: 3rem 5% 2.5rem;
+}
+
+.product-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(18,18,18,0.25) 0%, rgba(18,18,18,0.55) 55%, rgba(18,18,18,0.96) 100%);
+}
+
+.product-hero-content {
+    position: relative;
+    z-index: 1;
     max-width: 780px;
     margin: 0 auto;
-    padding: 2rem 5% 0;
+    width: 100%;
 }
 
-.back-to-guides a {
+.product-eyebrow {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
     color: var(--gold);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
 }
 
-.back-to-guides a:hover {
-    text-decoration: underline;
+.product-hero h1 {
+    font-size: clamp(1.9rem, 5vw, 2.8rem);
+    color: var(--white);
+    margin-bottom: 0.75rem;
+}
+
+.product-hero-sub {
+    font-size: 1.05rem;
+    opacity: 0.9;
+    line-height: 1.6;
+    max-width: 620px;
+    margin-bottom: 1.5rem;
+}
+
+.product-price-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.product-price {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    color: var(--gold);
+}
+
+.product-price .from {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+/* The one dominant CTA — deliberately the largest, highest-contrast button
+   anywhere on this page. Sticky on mobile so it's always reachable without
+   hunting, since that's the entire point of a product landing page. */
+.product-cta-primary {
+    font-size: 1.05rem;
+    padding: 1.1rem 2.8rem;
+    box-shadow: 0 8px 24px rgba(197, 160, 89, 0.35);
+}
+
+.product-body {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 3rem 5% 2rem;
+}
+
+.product-body h2 {
+    color: var(--gold);
+    font-size: 1.4rem;
+    margin: 0 0 1.25rem;
+}
+
+.product-included {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.9rem;
+    margin-bottom: 2.5rem;
+}
+
+.product-included li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    opacity: 0.92;
+}
+
+.product-included li::before {
+    content: '✓';
+    color: var(--gold);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* Secondary, sticky-ish CTA repeated mid-page so a reader who scrolled past
+   the hero doesn't have to scroll back up to book. */
+.product-cta-repeat {
+    background: rgba(197, 160, 89, 0.08);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    border-radius: 16px;
+    padding: 1.75rem;
+    text-align: center;
+    margin: 2.5rem 0;
+}
+
+.product-cta-repeat p {
+    opacity: 0.85;
+    margin-bottom: 1rem;
+}
+
+/* Comparison / alternatives — deliberately quieter styling than the primary
+   CTA area, so it reads as "worth knowing" rather than competing for the
+   click. */
+.product-compare {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.product-compare-card {
+    background: var(--glass);
+    border: 1px solid rgba(197, 160, 89, 0.15);
+    border-radius: 14px;
+    padding: 1.3rem 1.4rem;
+}
+
+.product-compare-card h4 {
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+}
+
+.product-compare-card .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--rust);
+    margin-bottom: 0.4rem;
+}
+
+.product-compare-card p {
+    font-size: 0.88rem;
+    opacity: 0.8;
+    line-height: 1.5;
+}
+
+/* Related guides — pushed to the very bottom, visually the quietest section
+   on the page, for the reader who wants more before/after booking. */
+.product-related {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 5% 5rem;
+}
+
+.product-related h3 {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+    color: var(--rust);
+    margin-bottom: 1rem;
+    opacity: 0.85;
+}
+
+.product-related-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.product-related-links a {
+    color: var(--white);
+    opacity: 0.8;
+    text-decoration: none;
+    font-size: 0.92rem;
+    padding: 0.7rem 1rem;
+    background: var(--glass);
+    border-radius: 10px;
+    border-left: 3px solid rgba(197, 160, 89, 0.4);
+    transition: opacity 0.2s, border-color 0.2s;
+}
+
+.product-related-links a:hover {
+    opacity: 1;
+    border-left-color: var(--gold);
+}
+
+@media (max-width: 768px) {
+    .product-hero { min-height: 50vh; padding: 2.5rem 6% 2rem; }
+    .product-body { padding: 2.5rem 6% 1.5rem; }
+    .product-related { padding: 0 6% 4rem; }
 }
 
 /* ---- Guide footer (injected by guide-nav.js) ---- */
@@ -456,23 +791,9 @@ body.guide-body {
 
 /* ---- Mobile ---- */
 @media (max-width: 768px) {
-    .guide-header {
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding: 0.85rem 5%;
-    }
-
-    .guide-header .brand-name {
-        display: none;
-    }
-
-    .guide-header nav {
-        gap: 1rem;
-    }
-
-    .guide-header nav a {
-        font-size: 0.78rem;
-    }
+    /* .guide-app-bar needs no mobile overrides — its 44px/1fr/44px grid with icon-only side
+       buttons (no text labels to wrap) is mobile-safe by construction, same as #app-mode's own
+       .app-bar in app-mode.css. */
 
     .guide-hero {
         padding: 3rem 6% 2rem;
@@ -487,10 +808,12 @@ body.guide-body {
     }
 
     .guides-grid {
+        grid-template-columns: 1fr;
         padding: 1rem 6% 4rem;
     }
 
     .stay-grid {
+        grid-template-columns: 1fr;
         padding: 1rem 6% 4rem;
     }
 }

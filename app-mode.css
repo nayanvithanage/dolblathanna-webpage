@@ -1,0 +1,346 @@
+/* ==========================================================================
+   App mode — the full-screen "native app" trip-planner takeover. Ported from
+   the validated mockup at _preview/preview-timeline.html. Additive to
+   style.css (brand tokens, .btn, etc.) and guides-shared/guide.css (the
+   .app-bar/.app-back/.app-bar-logo/.app-bar-about chrome, shared with every
+   guide/product/stay page's header — see that file for those rules).
+   ========================================================================== */
+
+/* --rust-text: lighter rust for small text on dark/photo backgrounds — the base --rust token (from
+   style.css) fails contrast at tag/label sizes. --rust itself stays reserved for solid fills (the
+   layer-num circle, left borders) where it isn't acting as foreground text color. */
+:root {
+    --rust-text: #E08A5F;
+}
+
+/* ================================================================
+   APP MODE — a full-screen takeover, no site nav, feels like a
+   native app screen. Fixed, covers the entire viewport, its own
+   scroll context. On index.html this loads with .is-open already
+   present in the HTML (app mode IS the homepage now, no FAB tap
+   required) — the translateY slide-in below is dead weight there,
+   kept only in case a future page wants the animated-entry version.
+   ================================================================ */
+#app-mode {
+    position: fixed;
+    inset: 0;
+    z-index: 250;
+    background: var(--charcoal);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#app-mode.is-open { transform: translateY(0); }
+
+.app-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Timeline list (the "everything you need to go through" view) ---- */
+.timeline-list {
+    position: relative;
+    padding: 1.5rem 0 4rem;
+}
+.timeline-intro {
+    padding: 0 6% 1.5rem;
+    text-align: center;
+}
+.timeline-intro h2 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.timeline-intro p { opacity: 0.75; font-size: 0.9rem; }
+
+.timeline-item {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    padding: 0 6%;
+    cursor: pointer;
+}
+
+/* the connecting vertical line + node, like the reference image's feed rail */
+.timeline-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 34px;
+    flex-shrink: 0;
+    position: relative;
+}
+.timeline-rail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: rgba(197, 160, 89, 0.25);
+    transform: translateX(-50%);
+}
+.timeline-item:first-child .timeline-rail::before { top: 50%; }
+.timeline-item:last-child .timeline-rail::before { bottom: 50%; }
+
+.timeline-node {
+    position: relative;
+    z-index: 1;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--charcoal);
+    border: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin: 1.1rem 0;
+    flex-shrink: 0;
+}
+
+/* Full-bleed tile — real photo background with a dark gradient scrim for text
+   legibility, same underlying idea as the existing .room-card overlay pattern
+   already used elsewhere on this site (image + gradient + text on top). */
+.timeline-tile {
+    flex: 1;
+    margin: 0.5rem 0 0.5rem 1rem;
+    border-radius: 14px;
+    min-height: 92px;
+    position: relative;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+}
+.timeline-tile:active { transform: scale(0.98); }
+
+.timeline-tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, rgba(18,18,18,0.88) 0%, rgba(18,18,18,0.55) 55%, rgba(18,18,18,0.15) 100%);
+    transition: background 0.25s ease;
+}
+.timeline-tile:hover::before {
+    background: linear-gradient(100deg, rgba(18,18,18,0.75) 0%, rgba(18,18,18,0.4) 55%, rgba(18,18,18,0.05) 100%);
+}
+
+.timeline-tile-content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    padding: 1.1rem 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--white);
+}
+
+.timeline-tile-text .label {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0.3rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+.timeline-tile-text .blurb {
+    font-size: 0.82rem;
+    opacity: 0.9;
+    line-height: 1.4;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+.timeline-tile-arrow {
+    font-size: 1.3rem;
+    opacity: 0.85;
+    flex-shrink: 0;
+}
+
+/* ---- Topic detail (four-layer content: Guide / Go Deeper / Platforms / Next Up), also inside app-mode ---- */
+/* Capped + centered so wide desktop viewports don't leave the content flush-left with a large dead
+   zone on the right. */
+.topic-detail { padding: 1.5rem 6% 4rem; display: none; max-width: 920px; margin: 0 auto; }
+.topic-detail.is-active { display: block; }
+.topic-detail-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; }
+.topic-detail-icon { font-size: 2.2rem; }
+.topic-detail-header h2 { font-size: 1.3rem; color: var(--gold); margin-bottom: 0.3rem; }
+.topic-detail-header p { opacity: 0.8; font-size: 0.9rem; }
+
+.layer-heading {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.72rem;
+    color: var(--rust-text);
+    margin: 2rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.layer-heading .layer-num {
+    background: var(--rust);
+    color: var(--white);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.68rem;
+    font-family: 'Inter', sans-serif;
+}
+.layer-heading:first-of-type { margin-top: 0; }
+
+/* ---- Compare Platforms gets a distinct treatment from the other 3 layers — it's the only layer
+   that actually converts (real affiliate link -> commission), so it needs to visually outrank a
+   plain eyebrow label, not match it. Gold-tinted bordered container + bigger heading, all of which
+   the other layers deliberately don't get. ---- */
+.cta-section {
+    margin: 2.2rem 0 2rem;
+    padding: 1.4rem 1.3rem 1.6rem;
+    border: 1px solid rgba(197, 160, 89, 0.4);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(197, 160, 89, 0.09), rgba(197, 160, 89, 0.02));
+}
+.cta-section .layer-heading {
+    font-size: 1rem;
+    color: var(--gold);
+    margin: 0 0 1.1rem;
+}
+.cta-section .layer-heading .layer-num {
+    background: var(--gold);
+    width: 24px; height: 24px;
+    font-size: 0.75rem;
+}
+
+.planner-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+.planner-card {
+    display: flex; flex-direction: column;
+    background: var(--glass);
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    border-radius: 14px;
+    padding: 1.4rem;
+    text-decoration: none; color: var(--white);
+}
+.planner-card h3 { font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; }
+.planner-card .fact { font-size: 0.85rem; opacity: 0.85; margin-bottom: 0.3rem; line-height: 1.5; }
+.planner-card .btn {
+    margin-top: 0.8rem; align-self: flex-start;
+    background: transparent; border: 1px solid var(--gold); color: var(--gold);
+    padding: 0.45rem 0.9rem; border-radius: 50px; font-size: 0.78rem; text-decoration: none;
+}
+.planner-card.is-placeholder { border-style: dashed; opacity: 0.85; }
+.offer-badge {
+    display: inline-block; background: rgba(197,160,89,0.15); color: var(--gold);
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 0.2rem 0.55rem; border-radius: 50px; margin-bottom: 0.5rem;
+}
+
+/* ---- "Go Deeper" cards (Layer 2): image-forward, using each sub-guide's real cover photo —
+   distinct from the plain text .planner-card used for platforms, since these are entry points into
+   full guides and should read that way at a glance. ---- */
+.deeper-groups { display: flex; flex-direction: column; gap: 1.6rem; }
+.deeper-group-label {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--white); opacity: 0.65;
+    margin-bottom: 0.7rem; padding-left: 0.1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.deeper-group-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+.deeper-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; }
+.deeper-card {
+    position: relative; display: block; border-radius: 14px; overflow: hidden;
+    height: 190px; text-decoration: none; color: var(--white);
+    background-size: cover; background-position: center;
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.deeper-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(18,18,18,0.15) 30%, rgba(18,18,18,0.92) 100%);
+    transition: background 0.25s ease;
+}
+.deeper-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.4); }
+.deeper-card:hover::before { background: linear-gradient(180deg, rgba(18,18,18,0.05) 30%, rgba(18,18,18,0.85) 100%); }
+.deeper-card-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 1rem 1.1rem; }
+.deeper-card .tag { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--rust-text); margin-bottom: 0.4rem; text-shadow: 0 1px 5px rgba(0,0,0,0.85), 0 1px 2px rgba(0,0,0,0.9); }
+.deeper-card h3 { font-family: 'Inter', sans-serif; font-size: 0.95rem; margin-bottom: 0.3rem; color: var(--white); text-transform: none; letter-spacing: normal; }
+.deeper-card p { font-size: 0.78rem; opacity: 0.85; line-height: 1.4; }
+
+/* ---- Platform comparison cards (Layer 3): a headline banner strip carrying the platform name,
+   professional hover lift (no color gimmicks). Every listed platform renders identically regardless
+   of whether its link is live yet — no status badge/dot signaling "under construction"; a platform
+   with no link/CTA yet is simply not clickable, not visually flagged as incomplete. ---- */
+.platform-cards {
+    display: flex; gap: 1.1rem; overflow-x: auto; padding-bottom: 0.9rem; scroll-snap-type: x proximity;
+    scrollbar-width: thin; scrollbar-color: rgba(197, 160, 89, 0.5) transparent; /* Firefox */
+}
+.platform-cards::-webkit-scrollbar { height: 6px; }
+.platform-cards::-webkit-scrollbar-track { background: transparent; }
+.platform-cards::-webkit-scrollbar-thumb { background: rgba(197, 160, 89, 0.4); border-radius: 10px; }
+.platform-cards::-webkit-scrollbar-thumb:hover { background: rgba(197, 160, 89, 0.65); }
+.platform-card {
+    scroll-snap-align: start; flex: 0 0 250px;
+    display: flex; flex-direction: column;
+    background: var(--glass); border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 14px;
+    overflow: hidden; text-decoration: none; color: var(--white);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.platform-card:hover { transform: translateY(-3px); border-color: rgba(197, 160, 89, 0.5); box-shadow: 0 8px 22px rgba(0,0,0,0.35); }
+.platform-card-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    padding: 0.85rem 1.1rem; background: rgba(197, 160, 89, 0.1); border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+}
+.platform-card-banner h3 { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--white); text-transform: none; letter-spacing: normal; margin: 0; }
+.platform-card-body { padding: 1.1rem; flex: 1; display: flex; flex-direction: column; }
+.platform-card-body p { font-size: 0.85rem; opacity: 0.85; line-height: 1.5; margin-bottom: 0.9rem; }
+.platform-card-body .btn { margin-top: auto; align-self: flex-start; }
+
+/* ---- Topic map: locked (no drag/scroll/zoom) Leaflet embed showing real recommended places,
+   sits right after Layer 1 (General Guide). "Static" in feel, real pinned coordinates underneath —
+   see the topic's `map.places` data, sourced from OpenStreetMap Nominatim lookups (verified, not
+   guessed), matching places already named in that topic's guide content. ---- */
+.topic-map-wrap { margin: 1.2rem 0 0; border-radius: 14px; overflow: hidden; border: 1px solid rgba(197, 160, 89, 0.2); position: relative; }
+.topic-map { height: 260px; width: 100%; background: var(--glass); }
+.topic-map-caption { padding: 0.6rem 1rem; font-size: 0.72rem; opacity: 0.6; background: rgba(18,18,18,0.6); }
+.leaflet-marker-pin {
+    background: var(--gold); color: var(--charcoal); border: 2px solid var(--charcoal);
+    border-radius: 50% 50% 50% 0; width: 26px; height: 26px; transform: rotate(-45deg);
+    display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.leaflet-marker-pin span { transform: rotate(45deg); }
+.leaflet-popup-content-wrapper { background: var(--charcoal); color: var(--white); border-radius: 8px; }
+.leaflet-popup-content { font-family: 'Inter', sans-serif; font-size: 0.82rem; margin: 0.6rem 0.8rem; }
+.leaflet-popup-content strong { color: var(--gold); }
+.leaflet-popup-tip { background: var(--charcoal); }
+
+.planner-general p { line-height: 1.7; opacity: 0.85; margin-bottom: 1rem; font-size: 0.9rem; max-width: 68ch; }
+.planner-readmore { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.8rem; }
+.planner-readmore a {
+    color: var(--white); text-decoration: none; font-size: 0.85rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    background: var(--glass);
+    border-radius: 10px;
+    border-left: 3px solid var(--rust);
+}
+.planner-readmore .browse-all { border-left-color: var(--gold); font-weight: 600; }
+
+.planner-recommendations { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+.planner-radar-item {
+    border: 1px dashed rgba(197, 160, 89, 0.35);
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    opacity: 0.85;
+}
+.planner-radar-item .tag { display: inline-block; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--rust-text); margin-bottom: 0.4rem; }
+.planner-radar-item h4 { font-size: 0.9rem; margin-bottom: 0.4rem; font-family: 'Inter', sans-serif; }
+.planner-radar-item p { font-size: 0.82rem; opacity: 0.8; line-height: 1.5; }
+.no-recs-note { opacity: 0.6; font-size: 0.85rem; font-style: italic; }
+
+/* ---- About Us screen ---- */
+#about-screen { text-align: left; }
+#about-screen h2 { font-size: 1.3rem; color: var(--gold); margin-bottom: 1.2rem; }
+#about-bio { opacity: 0.85; line-height: 1.75; font-size: 0.92rem; margin-bottom: 1.5rem; max-width: 68ch; }
+#about-social { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+#about-social a { flex: none; padding: 0.7rem 1.2rem; }

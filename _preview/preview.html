@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview — Nav + Three-Layer Topic Content</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --gold: #C5A059;
+    --charcoal: #121212;
+    --rust: #A0522D;
+    --white: #F5F5F7;
+    --glass: rgba(255, 255, 255, 0.05);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { overflow-x: hidden; width: 100%; }
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--white);
+    background-color: var(--charcoal);
+}
+h1, h2, h3 { font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 2px; }
+
+/* ---- Preview-only chrome, NOT part of the real site ---- */
+.preview-banner {
+    background: var(--rust);
+    color: var(--white);
+    text-align: center;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+/* ---- #navbar (matches real style.css exactly) ---- */
+#navbar {
+    position: sticky;
+    top: 2.2rem;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 5%;
+    background: linear-gradient(to bottom, rgba(18, 18, 18, 0.95), rgba(18,18,18,0.7));
+    z-index: 100;
+}
+.logo-placeholder {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    letter-spacing: 2px;
+    font-size: 1.1rem;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+.nav-links a { color: var(--white); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.3s; }
+.nav-links a:hover { color: var(--gold); }
+
+/* ---- New: hamburger toggle (hidden on desktop) ---- */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    width: 32px;
+    height: 24px;
+    padding: 0;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.nav-toggle-bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) { transform: translateY(11px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) { transform: translateY(-11px) rotate(-45deg); }
+
+/* ---- New: mobile drawer (max-height/opacity, not translateX) ---- */
+.nav-drawer { display: none; }
+
+/* ---- Sections ---- */
+.section { min-height: 60vh; padding: 60px 5%; }
+.container { max-width: 1000px; margin: 0 auto; }
+.section-title { font-size: 1.6rem; margin-bottom: 1rem; }
+.section-sub { opacity: 0.75; max-width: 600px; margin-bottom: 2.5rem; }
+
+/* ---- Floating launcher button (fixed, like an iOS floating action button) ---- */
+.launcher-fab {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 150;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--charcoal);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(197, 160, 89, 0.45);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.launcher-fab:hover { transform: scale(1.08); }
+.launcher-fab.is-hidden { opacity: 0; transform: scale(0.6); pointer-events: none; }
+
+/* ---- Radial overlay ---- */
+.radial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 160;
+    background: rgba(18, 18, 18, 0.94);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease;
+}
+.radial-overlay.is-open { opacity: 1; visibility: visible; }
+
+.radial-stage {
+    position: relative;
+    width: min(92vw, 92vh, 760px);
+    height: min(92vw, 92vh, 760px);
+}
+
+.radial-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 25%;
+    aspect-ratio: 1;
+    max-width: 110px;
+    border-radius: 20px;
+    background: var(--charcoal);
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.35s ease, border-color 0.3s, background 0.3s;
+}
+.radial-overlay.is-open .radial-center { transform: translate(-50%, -50%) scale(1); }
+.radial-center:hover { border-color: var(--white); background: rgba(197, 160, 89, 0.1); }
+.radial-center .back-icon { font-size: 1.8rem; line-height: 1; }
+
+.radial-node {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 84px;
+    height: 84px;
+    margin: -42px 0 0 -42px;
+    border-radius: 16px;
+    background: var(--glass);
+    border: 1px solid rgba(197, 160, 89, 0.35);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    padding: 0.4rem;
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, border-color 0.3s, background 0.3s;
+}
+.radial-overlay.is-open .radial-node {
+    opacity: 1;
+    /* transform set inline per-node via --tx/--ty custom properties */
+    transform: translate(var(--tx), var(--ty)) scale(1);
+}
+.radial-node:hover {
+    border-color: var(--gold);
+    background: rgba(197, 160, 89, 0.15);
+}
+.radial-node-icon { font-size: 1.6rem; }
+.radial-node-label {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-size: 0.68rem;
+    line-height: 1.25;
+}
+
+.radial-title {
+    position: absolute;
+    top: 1.5rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.75rem;
+    opacity: 0.6;
+    letter-spacing: 2px;
+}
+
+@media (max-width: 480px) {
+    .radial-node { width: 68px; height: 68px; margin: -34px 0 0 -34px; }
+    .radial-node-icon { font-size: 1.3rem; }
+    .radial-node-label { font-size: 0.58rem; }
+    .radial-center .back-icon { font-size: 1.5rem; }
+}
+
+/* ---- Focus view / three layers ---- */
+.planner-focus { max-width: 900px; margin: 0 auto; }
+.planner-back { background: none; border: none; color: var(--gold); font-size: 0.9rem; cursor: pointer; padding: 0.5rem 0; margin-bottom: 1.5rem; }
+.planner-focus-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; }
+.planner-focus-icon { font-size: 2.5rem; }
+.planner-focus-header h2 { font-size: 1.4rem; color: var(--gold); margin-bottom: 0.4rem; }
+.planner-focus-header p { opacity: 0.8; font-size: 0.95rem; }
+
+.layer-heading {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.75rem;
+    color: var(--rust);
+    margin: 2.5rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.layer-heading .layer-num {
+    background: var(--rust);
+    color: var(--white);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-family: 'Inter', sans-serif;
+}
+.layer-heading:first-of-type { margin-top: 0; }
+
+/* Layer 1: platforms */
+.planner-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+.planner-card {
+    display: flex; flex-direction: column;
+    background: var(--glass);
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    border-radius: 18px;
+    padding: 1.75rem;
+    text-decoration: none; color: var(--white);
+    transition: transform 0.4s, border-color 0.3s;
+}
+.planner-card:hover { transform: translateY(-6px); border-color: var(--gold); }
+.planner-card h3 { font-size: 1.05rem; color: var(--gold); margin-bottom: 0.6rem; letter-spacing: 0.5px; }
+.planner-card .fact { font-size: 0.88rem; opacity: 0.85; margin-bottom: 0.35rem; line-height: 1.5; }
+.planner-card .btn {
+    margin-top: 1rem; align-self: flex-start;
+    background: transparent; border: 1px solid var(--gold); color: var(--gold);
+    padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.8rem; text-decoration: none;
+    transition: all 0.3s;
+}
+.planner-card:hover .btn { background: var(--gold); color: var(--charcoal); }
+.planner-card.is-placeholder { border-style: dashed; opacity: 0.85; }
+
+/* Layer 2: general guide */
+.planner-general { max-width: 700px; }
+.planner-general p { line-height: 1.7; opacity: 0.85; margin-bottom: 1rem; font-size: 0.95rem; }
+.planner-readmore { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+.planner-readmore a {
+    color: var(--white); text-decoration: none; font-size: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 0.9rem;
+    background: var(--glass);
+    border-radius: 10px;
+    border-left: 3px solid var(--rust);
+    transition: border-color 0.3s, background 0.3s;
+}
+.planner-readmore a:hover { border-color: var(--gold); background: rgba(197,160,89,0.08); }
+.planner-readmore .browse-all { border-left-color: var(--gold); font-weight: 600; }
+
+/* Layer 3: recommendations */
+.planner-recommendations { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+.planner-radar-item {
+    border: 1px dashed rgba(197, 160, 89, 0.35);
+    border-radius: 18px;
+    padding: 1.5rem 1.75rem;
+    opacity: 0.85;
+}
+.planner-radar-item h4 { font-size: 0.95rem; color: var(--white); margin-bottom: 0.5rem; font-family: 'Inter', sans-serif; letter-spacing: 0.3px; }
+.planner-radar-item p { font-size: 0.85rem; opacity: 0.8; line-height: 1.5; }
+.planner-radar-item .tag { display: inline-block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--rust); margin-bottom: 0.5rem; }
+.no-recs-note { opacity: 0.6; font-size: 0.9rem; font-style: italic; }
+
+/* Layer 1 items with offer/review data */
+.planner-card .offer-badge {
+    display: inline-block;
+    background: rgba(197,160,89,0.15);
+    color: var(--gold);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 50px;
+    margin-bottom: 0.6rem;
+}
+
+/* ---- Mini-map ---- */
+.planner-minimap {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+    margin-top: 3rem; padding-top: 1.5rem;
+    border-top: 1px solid rgba(197, 160, 89, 0.15);
+}
+.planner-minimap-item {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 0.9rem; border-radius: 50px;
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    background: var(--glass); font-size: 0.8rem; cursor: pointer;
+    transition: border-color 0.3s, background 0.3s; color: var(--white);
+}
+.planner-minimap-item:hover { border-color: var(--gold); }
+.planner-minimap-item.is-active { border-color: var(--gold); background: rgba(197, 160, 89, 0.15); color: var(--gold); }
+
+/* ---- About & Contact (merged) ---- */
+#about-contact { text-align: center; }
+#about-contact p { max-width: 700px; margin: 0 auto 2rem; line-height: 1.8; opacity: 0.9; }
+.social-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+.social-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    border: 1px solid var(--gold); color: var(--gold);
+    padding: 0.8rem 1.5rem; border-radius: 50px; text-decoration: none; font-size: 0.85rem;
+    transition: all 0.3s;
+}
+.social-item:hover { background: var(--gold); color: var(--charcoal); }
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+    #navbar { padding: 1rem 5%; flex-wrap: wrap; }
+    .nav-links { display: none; }
+    .nav-toggle { display: flex; }
+    .nav-drawer {
+        display: flex; flex-direction: column; width: 100%; order: 3;
+        list-style: none;
+        max-height: 0; opacity: 0; overflow: hidden;
+        transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.35s ease;
+    }
+    .nav-drawer.is-open { max-height: 400px; opacity: 1; margin-top: 1rem; }
+    .nav-drawer li { border-top: 1px solid rgba(197,160,89,0.15); }
+    .nav-drawer a { display: block; padding: 0.9rem 0.2rem; color: var(--white); text-decoration: none; font-size: 0.95rem; }
+    .nav-drawer a:hover { color: var(--gold); }
+
+    .planner-cards, .planner-recommendations { grid-template-columns: 1fr; }
+    .launcher-fab { width: 56px; height: 56px; font-size: 1.4rem; bottom: 1rem; left: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="preview-banner">
+    PREVIEW ONLY — isolated file, not wired into the real site. Resize the window (or use dev tools device mode) to see the mobile hamburger menu.
+</div>
+
+<header>
+    <nav id="navbar">
+        <div class="logo-placeholder">Dolblathanna</div>
+        <ul class="nav-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#">Guides</a></li>
+            <li><a href="#" onclick="showTopic('where-to-stay'); return false;">Where to Stay</a></li>
+            <li><a href="#" onclick="showTopic('getting-around'); return false;">Getting Around</a></li>
+            <li><a href="#about-contact">About &amp; Contact</a></li>
+        </ul>
+        <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+            <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
+        </button>
+        <ul id="nav-drawer" class="nav-drawer">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#">Guides</a></li>
+            <li><a href="#" onclick="showTopic('where-to-stay'); return false;">Where to Stay</a></li>
+            <li><a href="#" onclick="showTopic('getting-around'); return false;">Getting Around</a></li>
+            <li><a href="#about-contact">About &amp; Contact</a></li>
+        </ul>
+    </nav>
+</header>
+
+<button id="launcher-fab" class="launcher-fab" type="button" aria-label="Open trip planner" onclick="openRadial()">🧭</button>
+
+<div id="radial-overlay" class="radial-overlay">
+    <div class="radial-stage">
+        <div class="radial-title">Plan Your Trip — Choose a Topic</div>
+        <div id="radial-nodes"></div>
+        <button class="radial-center" onclick="closeRadial()" aria-label="Back">
+            <span class="back-icon">←</span>
+        </button>
+    </div>
+</div>
+
+<main>
+    <section id="hero" class="section">
+        <div class="container" style="text-align:center;">
+            <h1 style="font-size:1.8rem; margin-bottom:0.5rem;">Plan Your Trip</h1>
+            <p class="section-sub" style="margin:0 auto 2.5rem;">Tap the compass in the corner to explore what your trip needs.</p>
+        </div>
+        <div id="planner-focus" class="planner-focus" style="display:none; margin-top: 3rem;">
+            <button class="planner-back" onclick="backToGrid()">&larr; All Topics</button>
+            <div class="planner-focus-header">
+                <span id="focus-icon" class="planner-focus-icon"></span>
+                <div>
+                    <h2 id="focus-title"></h2>
+                    <p id="focus-blurb"></p>
+                </div>
+            </div>
+
+            <div class="layer-heading"><span class="layer-num">1</span> Platforms We Recommend</div>
+            <div id="planner-cards" class="planner-cards"></div>
+
+            <div class="layer-heading"><span class="layer-num">2</span> The General Guide</div>
+            <div id="planner-general" class="planner-general"></div>
+
+            <div class="layer-heading"><span class="layer-num">3</span> Specific Recommendations</div>
+            <div id="planner-recommendations" class="planner-recommendations"></div>
+
+            <div id="planner-minimap" class="planner-minimap"></div>
+        </div>
+    </section>
+
+    <section id="about-contact" class="section">
+        <div class="container">
+            <h2 class="section-title" style="text-align:center;">Our Story</h2>
+            <p>Dolblathanna is a registered hospitality and tourism business rooted in Panchaliya, Ahangama, on Sri Lanka's South Coast. We're not currently taking bookings — but the local knowledge behind this site is real. This is our way of sharing it.</p>
+            <div class="social-links">
+                <a href="#" class="social-item">Facebook</a>
+                <a href="#" class="social-item">Instagram</a>
+                <a href="#" class="social-item">TikTok</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+// ---- Sample data matching the plan's exact data shape ----
+const nodes = {
+    'flights': {
+        id: 'flights', label: 'Flights', icon: '✈️',
+        blurb: 'Getting to Sri Lanka in the first place.',
+        platforms: [], general: { intro: '', readMore: [] },
+        recommendations: { source: null, items: [], radar: [] }
+    },
+    'where-to-stay': {
+        id: 'where-to-stay', label: 'Where to Stay', icon: '🏡',
+        blurb: 'Real, verified places across the South Coast towns.',
+        platforms: [
+            { name: 'Booking.com', description: 'The widest selection of verified guesthouses and hotels across the South Coast.', link: '#', cta: 'Browse Stays' }
+        ],
+        general: { intro: '', readMore: [
+            { label: 'Ahangama vs. Weligama: Where to Stay', href: '#' }
+        ]},
+        recommendations: { source: 'config.sections.rooms', items: [], radar: [] }
+    },
+    'getting-around': {
+        id: 'getting-around', label: 'Getting Around', icon: '🛺',
+        blurb: 'Tuk-tuks, scooters, vans, and trains between towns.',
+        platforms: [
+            { name: 'Klook Airport & Local Transfers', description: 'Compare Colombo airport transfer options and book a driver before you land.', offer: '10% off through Sep 30', link: '#', cta: 'Compare on Klook' }
+        ],
+        general: { intro: 'Distances on the South Coast look small on a map, but Sri Lankan roads move at their own pace. Most visitors mix a few methods: scooters or tuk-tuks for daily local movement, and a private van for the one or two bigger day trips they take. Trying to use a van for everything gets expensive and limits your spontaneity.', readMore: [
+            { label: 'Ahangama Day Trip Guide', href: '#' },
+            { label: 'The Galle–Matara Coastal Train Journey', href: '#' }
+        ]},
+        recommendations: { source: null, items: [], radar: [
+            { name: 'Scooter Rental', description: 'The most flexible way to hop between beaches and cafes on your own schedule — widely available for short or multi-day hire.' },
+            { name: 'Tuk-Tuk Hire', description: 'The classic Sri Lankan way to travel — easy to flag down, or hire by the day with a driver who knows the back roads.' },
+            { name: 'Private Driver / Van', description: 'Best for groups, luggage, or longer trips like Galle Fort or Yala — door-to-door without the transfers.' }
+        ]}
+    }
+};
+
+const sampleRooms = [
+    { name: 'Guesthouses in Ahangama', location: 'Ahangama', description: 'Our own home base — a mellow surf town with a dense strip of cafes and guesthouses.' },
+    { name: 'Surf Camp, Weligama', location: 'Weligama', description: "Bunk or private-room surf camps right on Weligama Bay's beginner-friendly break." }
+];
+
+const allTopics = [
+    { id: 'flights', label: 'Flights', icon: '✈️' },
+    { id: 'airport-transfer', label: 'Airport Transfer', icon: '🚐' },
+    { id: 'staying-connected', label: 'Staying Connected', icon: '📶' },
+    { id: 'where-to-stay', label: 'Where to Stay', icon: '🏡' },
+    { id: 'getting-around', label: 'Getting Around', icon: '🛺' },
+    { id: 'tours-activities', label: 'Tours & Activities', icon: '🎟️' },
+    { id: 'food', label: 'Food', icon: '🍛' },
+    { id: 'travel-insurance', label: 'Travel Insurance', icon: '🩹' },
+    { id: 'money-currency', label: 'Money & Currency', icon: '💱' },
+    { id: 'packing', label: 'Packing', icon: '🎒' },
+    { id: 'safety', label: 'Safety & Emergencies', icon: '🚑' }
+];
+
+// Position the 11 topics evenly around a circle (360° / 11 ≈ 32.7° apart),
+// starting from straight up (-90°) so the first item sits at 12 o'clock.
+// Radius is computed from real circle-packing math (not guessed): for N nodes of
+// diameter D with a minimum gap G between neighbours, the smallest radius that keeps
+// them from overlapping is R = (D + G) / (2 * sin(π / N)). We also cap R so the ring
+// never exceeds the stage's own half-width, and never sit closer than just outside
+// the center button.
+function renderRadialNodes() {
+    const container = document.getElementById('radial-nodes');
+    container.innerHTML = '';
+    const count = allTopics.length;
+
+    const stage = document.querySelector('.radial-stage');
+    const stageHalf = stage.getBoundingClientRect().width / 2;
+
+    const isMobile = window.innerWidth <= 480;
+    const nodeDiameter = isMobile ? 68 : 84;
+    const gap = isMobile ? 10 : 18;
+
+    const packingRadius = (nodeDiameter + gap) / (2 * Math.sin(Math.PI / count));
+    const centerButtonRadius = stageHalf * 0.135; // half of .radial-center's ~27% width at this stage size
+    const maxRadius = stageHalf - nodeDiameter / 2 - 4; // keep nodes fully inside the stage
+    const radius = Math.min(Math.max(packingRadius, centerButtonRadius + nodeDiameter / 2 + gap), maxRadius);
+
+    allTopics.forEach((t, i) => {
+        const angleDeg = -90 + (360 / count) * i;
+        const angleRad = angleDeg * (Math.PI / 180);
+        const tx = Math.cos(angleRad) * radius;
+        const ty = Math.sin(angleRad) * radius;
+
+        const el = document.createElement('button');
+        el.className = 'radial-node';
+        el.style.setProperty('--tx', `${tx.toFixed(1)}px`);
+        el.style.setProperty('--ty', `${ty.toFixed(1)}px`);
+        el.innerHTML = `<span class="radial-node-icon">${t.icon}</span><span class="radial-node-label">${t.label}</span>`;
+        el.onclick = () => showTopic(nodes[t.id] ? t.id : 'getting-around');
+        container.appendChild(el);
+    });
+}
+
+function openRadial() {
+    renderRadialNodes(); // recompute in case the viewport changed since load
+    document.getElementById('radial-overlay').classList.add('is-open');
+    document.getElementById('launcher-fab').classList.add('is-hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeRadial() {
+    document.getElementById('radial-overlay').classList.remove('is-open');
+    document.getElementById('launcher-fab').classList.remove('is-hidden');
+    document.body.style.overflow = '';
+}
+
+function renderMiniMap(activeId) {
+    const map = document.getElementById('planner-minimap');
+    map.innerHTML = '';
+    allTopics.forEach(t => {
+        const item = document.createElement('button');
+        item.className = 'planner-minimap-item' + (t.id === activeId ? ' is-active' : '');
+        item.innerHTML = `<span>${t.icon}</span><span>${t.label}</span>`;
+        item.onclick = () => showTopic(nodes[t.id] ? t.id : 'getting-around');
+        map.appendChild(item);
+    });
+}
+
+function renderPlatforms(node) {
+    const c = document.getElementById('planner-cards');
+    c.innerHTML = '';
+    if (node.platforms.length === 0) {
+        c.innerHTML = `<div class="planner-card is-placeholder"><h3>Coming Soon</h3><p class="fact">We're still putting this section together.</p><a href="#" class="btn">Browse All Guides</a></div>`;
+        return;
+    }
+    node.platforms.forEach(p => {
+        const el = document.createElement('a');
+        el.className = 'planner-card';
+        el.href = p.link;
+        el.innerHTML = `
+            ${p.offer ? `<span class="offer-badge">${p.offer}</span>` : ''}
+            <h3>${p.name}</h3>
+            ${p.description ? `<p class="fact">${p.description}</p>` : ''}
+            <span class="btn">${p.cta}</span>
+        `;
+        c.appendChild(el);
+    });
+}
+
+function renderGeneral(node) {
+    const c = document.getElementById('planner-general');
+    c.innerHTML = '';
+    if (node.general.intro) {
+        c.innerHTML += `<p>${node.general.intro}</p>`;
+    }
+    const list = document.createElement('ul');
+    list.className = 'planner-readmore';
+    node.general.readMore.forEach(r => {
+        list.innerHTML += `<li><a href="${r.href}">📖 ${r.label}</a></li>`;
+    });
+    list.innerHTML += `<li><a href="#" class="browse-all">🧭 Browse All Guides</a></li>`;
+    c.appendChild(list);
+}
+
+function renderRecommendations(node) {
+    const c = document.getElementById('planner-recommendations');
+    c.innerHTML = '';
+    if (node.recommendations.source === 'config.sections.rooms') {
+        sampleRooms.forEach(r => {
+            c.innerHTML += `<a href="#" class="planner-card"><h3>${r.name}</h3><p class="fact">${r.location}</p><p class="fact">${r.description}</p><span class="btn">View Options</span></a>`;
+        });
+        return;
+    }
+    if (node.recommendations.radar.length > 0) {
+        node.recommendations.radar.forEach(r => {
+            c.innerHTML += `<div class="planner-radar-item"><span class="tag">On Our Radar</span><h4>${r.name}</h4><p>${r.description}</p></div>`;
+        });
+        return;
+    }
+    c.innerHTML = `<p class="no-recs-note">We don't have specific recommendations for this yet.</p>`;
+}
+
+function showTopic(id) {
+    const node = nodes[id];
+    if (!node) return;
+    document.getElementById('focus-icon').textContent = node.icon;
+    document.getElementById('focus-title').textContent = node.label;
+    document.getElementById('focus-blurb').textContent = node.blurb;
+    renderPlatforms(node);
+    renderGeneral(node);
+    renderRecommendations(node);
+    renderMiniMap(id);
+    document.getElementById('planner-focus').style.display = 'block';
+    closeRadial();
+
+    document.getElementById('planner-focus').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    closeDrawer();
+}
+
+function backToGrid() {
+    document.getElementById('planner-focus').style.display = 'none';
+}
+
+// ---- Hamburger drawer logic ----
+const toggle = document.getElementById('nav-toggle');
+const drawer = document.getElementById('nav-drawer');
+
+function openDrawer() {
+    drawer.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+}
+function closeDrawer() {
+    drawer.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+}
+toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    drawer.classList.contains('is-open') ? closeDrawer() : openDrawer();
+});
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeDrawer));
+document.addEventListener('click', (e) => {
+    if (drawer.classList.contains('is-open') && !drawer.contains(e.target) && e.target !== toggle) closeDrawer();
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer.classList.contains('is-open')) { closeDrawer(); toggle.focus(); }
+    if (e.key === 'Escape' && document.getElementById('radial-overlay').classList.contains('is-open')) { closeRadial(); }
+});
+window.addEventListener('resize', () => { if (window.innerWidth > 768) closeDrawer(); });
+
+// Close the radial overlay if the visitor taps the dimmed backdrop (not a node/center button)
+document.getElementById('radial-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'radial-overlay') closeRadial();
+});
+
+renderRadialNodes();
+</script>
+
+</body>
+</html>

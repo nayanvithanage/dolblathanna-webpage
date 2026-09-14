@@ -18,10 +18,8 @@ export const config = {
         }
     },
     sections: {
-        hero: {
-            title: "Your Local Guide to the South Coast",
-            subtitle: "Real recommendations for exploring Sri Lanka's South Coast — from Hikkaduwa to Tangalle."
-        },
+        // Hero content is now driven by trip-planner.js (the interactive "Plan Your Trip" grid) —
+        // see tripPlanner.title/subtitle there instead.
         // These are curated recommendations across the South Coast region, not Dolblathanna's own
         // inventory. Dolblathanna is not currently taking bookings (see About blurb on the homepage).
         // Each entry gets an affiliate placeholder comment next to it — wire in a real link/tracking

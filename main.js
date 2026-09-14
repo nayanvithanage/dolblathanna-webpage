@@ -1,71 +1,9 @@
 import * as THREE from 'three';
 import { config } from './config.js';
 
-// --- INITIALIZATION ---
-const heroTitle = document.getElementById('hero-title');
-const heroSubtitle = document.getElementById('hero-subtitle');
-const roomsGrid = document.getElementById('rooms-grid');
-const rentalsSubtitle = document.getElementById('rentals-subtitle');
-const rentalsGrid = document.getElementById('rentals-grid');
-const socialLinks = document.getElementById('social-links');
-
-// Populate Content
-heroTitle.textContent = config.sections.hero.title;
-heroSubtitle.textContent = config.sections.hero.subtitle;
-
-config.sections.rooms.forEach(room => {
-    const roomEl = document.createElement('div');
-    roomEl.className = 'room-card';
-    roomEl.innerHTML = `
-        <img src="${room.image}" alt="${room.name}">
-        <div class="room-details">
-            <h3>${room.name}</h3>
-            ${room.location ? `<span class="room-location">${room.location}</span>` : ''}
-            <p>${room.description}</p>
-            <a href="${room.link || '#'}" class="btn secondary room-link">View Options</a>
-        </div>
-    `;
-    roomsGrid.appendChild(roomEl);
-});
-
-rentalsSubtitle.textContent = config.sections.rentals.subtitle;
-config.sections.rentals.vehicles.forEach(vehicle => {
-    const vehicleEl = document.createElement('div');
-    vehicleEl.className = 'rental-card';
-    vehicleEl.innerHTML = `
-        <div class="rental-icon">${vehicle.icon}</div>
-        <h3>${vehicle.type}</h3>
-        <p>${vehicle.description}</p>
-        <a href="${vehicle.link || '#'}" class="btn secondary" style="margin-top: 1rem; display: inline-block;">${vehicle.link && vehicle.link.startsWith('./') ? 'Read the Guide' : 'View Options'}</a>
-    `;
-    rentalsGrid.appendChild(vehicleEl);
-});
-
-if (config.contact.social) {
-    if (config.contact.social.facebook) {
-        socialLinks.innerHTML += `
-            <a href="${config.contact.social.facebook}" class="social-item" target="_blank">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                <span>Facebook</span>
-            </a>`;
-    }
-    if (config.contact.social.instagram) {
-        socialLinks.innerHTML += `
-            <a href="${config.contact.social.instagram}" class="social-item" target="_blank">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                <span>Instagram</span>
-            </a>`;
-    }
-    if (config.contact.social.tiktok) {
-        socialLinks.innerHTML += `
-            <a href="${config.contact.social.tiktok}" class="social-item" target="_blank">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V2h5v4h-2a3 3 0 0 0-3 3h2v4h-2a4 4 0 0 1-4-4z"></path></svg>
-                <span>TikTok</span>
-            </a>`;
-    }
-}
-
 // --- THREE.JS SCENE SETUP ---
+// Decorative particle-field background, independent of the trip-planner/app-mode logic (that lives
+// in app-mode.js now — see its own file header for why the split).
 const canvas = document.querySelector('#three-canvas');
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -86,7 +24,7 @@ for (let i = 0; i < particlesCount; i++) {
     positions[i * 3] = (Math.random() - 0.5) * 10;
     positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
     positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
-    
+
     const mixedColor = gold.clone().lerp(rust, Math.random());
     colors[i * 3] = mixedColor.r;
     colors[i * 3 + 1] = mixedColor.g;
@@ -143,12 +81,18 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Smooth Scroll
+// Smooth Scroll — only for genuine same-page anchors (e.g. "#hero"), not app-mode's own
+// "#app=topic:..." routing hashes, which app-mode.js handles itself. Guarded: a bare "#" or an
+// "#app=..." hash isn't a valid CSS id selector and would throw if passed to querySelector, and even
+// if it were valid, scrolling the underlying homepage to a matching element while app mode is a
+// separate full-screen overlay on top would be visibly wrong.
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    const href = anchor.getAttribute('href');
+    if (!href || href === '#' || href.startsWith('#app=')) return;
     anchor.addEventListener('click', function (e) {
+        const target = document.querySelector(href);
+        if (!target) return;
         e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-            behavior: 'smooth'
-        });
+        target.scrollIntoView({ behavior: 'smooth' });
     });
 });
