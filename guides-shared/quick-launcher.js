@@ -10,10 +10,11 @@
 // design, each host wires up how a tap actually navigates via the `navigate` callback rather than
 // this module guessing its environment.
 //
-// Data comes straight from trip-planner.js's `order`/`nodes` (id/label/icon only) — the same single
-// source of truth index.html's timeline already renders from — so there is no second list of 11
-// topics anywhere that can drift out of sync (see trip-planner.js's own comment on `order`).
-import { tripPlanner } from '../trip-planner.js';
+// Data comes from data-loader.js's loadTopicList() (id/label/icon only, fetched from the Supabase
+// affiliate DB — see .claude/memory/project_affiliate_db_schema_and_design_first.md in paypal-poc)
+// — the same single source of truth index.html's timeline already renders from, so there is no
+// second list of 11 topics anywhere that can drift out of sync.
+import { loadTopicList } from '../data-loader.js';
 
 // mount({ navigate, isTimelineHome }) — call once per page.
 //   navigate(topicId): called when a drawer item is tapped; the host decides what that means
@@ -40,20 +41,26 @@ export function mountQuickLauncher({ navigate, isTimelineHome = () => false }) {
             <span>All Topics</span>
             <button type="button" class="quick-launcher-close" aria-label="Close">&times;</button>
         </div>
-        <div class="quick-launcher-list">
-            ${tripPlanner.order.map(id => {
-                const t = tripPlanner.nodes[id];
-                return `
-                    <button type="button" class="quick-launcher-item" data-topic-id="${t.id}">
-                        <span class="quick-launcher-item-icon">${t.icon}</span>
-                        <span class="quick-launcher-item-label">${t.label}</span>
-                    </button>
-                `;
-            }).join('')}
-        </div>
+        <div class="quick-launcher-list"></div>
     `;
 
     document.body.append(fab, scrim, drawer);
+
+    loadTopicList().then(topics => {
+        const list = drawer.querySelector('.quick-launcher-list');
+        list.innerHTML = topics.map(t => `
+            <button type="button" class="quick-launcher-item" data-topic-id="${t.id}">
+                <span class="quick-launcher-item-icon">${t.icon}</span>
+                <span class="quick-launcher-item-label">${t.label}</span>
+            </button>
+        `).join('');
+        list.querySelectorAll('.quick-launcher-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                close();
+                navigate(btn.dataset.topicId);
+            });
+        });
+    }).catch(err => console.error('Failed to load topic list from Supabase:', err));
 
     function open() {
         drawer.classList.add('is-open');
@@ -71,12 +78,6 @@ export function mountQuickLauncher({ navigate, isTimelineHome = () => false }) {
     drawer.querySelector('.quick-launcher-close').addEventListener('click', close);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && drawer.classList.contains('is-open')) close();
-    });
-    drawer.querySelectorAll('.quick-launcher-item').forEach(btn => {
-        btn.addEventListener('click', () => {
-            close();
-            navigate(btn.dataset.topicId);
-        });
     });
 
     // Dim the button while actively scrolling so it doesn't sit fully opaque over content passing

@@ -1,6 +1,8 @@
 :root {
     --gold: #C5A059;
+    --gold-rgb: 197, 160, 89;
     --charcoal: #121212;
+    --charcoal-rgb: 18, 18, 18;
     --rust: #A0522D;
     --dark-green: #1B3022;
     --white: #F5F5F7;
@@ -50,13 +52,13 @@ h1, h2, h3 {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 5%;
-    background: linear-gradient(to bottom, rgba(18, 18, 18, 0.8), transparent);
+    background: linear-gradient(to bottom, rgba(var(--charcoal-rgb), 0.8), transparent);
     z-index: 100;
 }
 
 .logo {
     height: 60px;
-    filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.3));
+    filter: drop-shadow(0 0 10px rgba(var(--gold-rgb), 0.3));
 }
 
 .nav-links {
@@ -121,7 +123,7 @@ h1, h2, h3 {
 #hero-title {
     font-size: 4rem;
     margin-bottom: 1rem;
-    background: linear-gradient(45deg, var(--gold), #FFF);
+    background: linear-gradient(45deg, var(--gold), var(--white));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -154,7 +156,7 @@ h1, h2, h3 {
 
 .btn.primary:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(197, 160, 89, 0.3);
+    box-shadow: 0 10px 20px rgba(var(--gold-rgb), 0.3);
 }
 
 .btn.secondary {
@@ -165,65 +167,6 @@ h1, h2, h3 {
 .btn.secondary:hover {
     background-color: var(--gold);
     color: var(--charcoal);
-}
-
-/* Rooms Grid */
-.rooms-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.room-card {
-    height: 400px;
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.5s;
-}
-
-.room-card:hover {
-    transform: scale(1.02);
-}
-
-.room-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: opacity 0.5s;
-}
-
-.room-details {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 2rem;
-    background: linear-gradient(transparent, rgba(0,0,0,0.8));
-    transform: translateY(100px);
-    transition: transform 0.5s;
-}
-
-.room-card:hover .room-details {
-    transform: translateY(0);
-}
-
-.room-location {
-    display: inline-block;
-    font-family: 'Cinzel', serif;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.7rem;
-    color: var(--gold);
-    margin-bottom: 0.5rem;
-}
-
-.room-link {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.5rem 1.5rem;
-    font-size: 0.85rem;
 }
 
 /* Rentals Grid */
@@ -240,7 +183,7 @@ h1, h2, h3 {
     border-radius: 20px;
     text-align: center;
     width: 300px;
-    border: 1px solid rgba(197, 160, 89, 0.2);
+    border: 1px solid rgba(var(--gold-rgb), 0.2);
     transition: border 0.3s;
 }
 
@@ -279,7 +222,7 @@ h1, h2, h3 {
     border-radius: 50px;
     font-weight: 600;
     width: fit-content;
-    background: rgba(197, 160, 89, 0.05);
+    background: rgba(var(--gold-rgb), 0.05);
 }
 
 .social-item svg {
@@ -356,14 +299,6 @@ h1, h2, h3 {
         width: 100%;
         text-align: center;
         padding: 0.8rem 1.5rem;
-    }
-
-    .rooms-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .room-card {
-        height: 300px;
     }
 
     .rentals-grid {

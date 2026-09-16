@@ -23,8 +23,8 @@ body.guide-body {
     grid-template-columns: 44px 1fr 44px;
     align-items: center;
     padding: 1.1rem 5%;
-    background: rgba(18, 18, 18, 0.98);
-    border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+    background: rgba(var(--charcoal-rgb), 0.98);
+    border-bottom: 1px solid rgba(var(--gold-rgb), 0.15);
 }
 .guide-app-bar {
     position: sticky;
@@ -57,7 +57,7 @@ body.guide-body {
 }
 .app-bar-logo img {
     height: 34px;
-    filter: drop-shadow(0 0 6px rgba(197, 160, 89, 0.3));
+    filter: drop-shadow(0 0 6px rgba(var(--gold-rgb), 0.3));
 }
 
 .app-bar-about {
@@ -130,7 +130,7 @@ body.guide-body {
     z-index: 320;
     width: min(320px, 84vw);
     background: var(--charcoal);
-    border-right: 1px solid rgba(197, 160, 89, 0.25);
+    border-right: 1px solid rgba(var(--gold-rgb), 0.25);
     box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
@@ -146,7 +146,7 @@ body.guide-body {
     align-items: center;
     justify-content: space-between;
     padding: 1.1rem 1.25rem;
-    border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+    border-bottom: 1px solid rgba(var(--gold-rgb), 0.15);
     font-family: 'Cinzel', serif;
     color: var(--gold);
     letter-spacing: 0.5px;
@@ -182,7 +182,7 @@ body.guide-body {
     font-size: 0.95rem;
 }
 .quick-launcher-item:hover,
-.quick-launcher-item:focus-visible { background: rgba(197, 160, 89, 0.12); }
+.quick-launcher-item:focus-visible { background: rgba(var(--gold-rgb), 0.12); }
 .quick-launcher-item-icon {
     font-size: 1.2rem;
     width: 30px;
@@ -237,7 +237,7 @@ body.guide-body {
     display: flex;
     flex-direction: column;
     background: var(--glass);
-    border: 1px solid rgba(197, 160, 89, 0.2);
+    border: 1px solid rgba(var(--gold-rgb), 0.2);
     border-radius: 18px;
     overflow: hidden;
     text-decoration: none;
@@ -309,7 +309,7 @@ body.guide-body {
     max-height: 420px;
     object-fit: cover;
     border-radius: 20px;
-    border: 1px solid rgba(197, 160, 89, 0.25);
+    border: 1px solid rgba(var(--gold-rgb), 0.25);
     margin-bottom: 2.5rem;
 }
 
@@ -351,7 +351,7 @@ body.guide-body {
 .guide-article a {
     color: var(--gold);
     text-decoration: underline;
-    text-decoration-color: rgba(197, 160, 89, 0.4);
+    text-decoration-color: rgba(var(--gold-rgb), 0.4);
     text-underline-offset: 3px;
 }
 
@@ -377,10 +377,10 @@ body.guide-body {
 
 /* Callout box — used to frame affiliate-placeholder context (insurance, booking, etc.) */
 .guide-callout {
-    background: rgba(197, 160, 89, 0.08);
-    border: 1px solid rgba(197, 160, 89, 0.3);
+    background: rgba(var(--gold-rgb), 0.08);
+    border: 1px solid rgba(var(--gold-rgb), 0.3);
     border-left: 4px solid var(--gold);
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 1.5rem 1.75rem;
     margin: 1.75rem 0;
 }
@@ -398,7 +398,7 @@ body.guide-body {
     overflow-x: auto;
     margin: 1.5rem 0 2rem;
     border-radius: 12px;
-    border: 1px solid rgba(197, 160, 89, 0.25);
+    border: 1px solid rgba(var(--gold-rgb), 0.25);
 }
 
 .guide-table {
@@ -421,7 +421,7 @@ body.guide-body {
     text-transform: uppercase;
     font-size: 0.75rem;
     color: var(--gold);
-    background: rgba(197, 160, 89, 0.08);
+    background: rgba(var(--gold-rgb), 0.08);
 }
 
 .guide-table tr:last-child td {
@@ -435,7 +435,7 @@ body.guide-body {
     padding: 2.5rem;
     text-align: center;
     background: var(--glass);
-    border: 1px solid rgba(197, 160, 89, 0.25);
+    border: 1px solid rgba(var(--gold-rgb), 0.25);
     border-radius: 20px;
 }
 
@@ -477,7 +477,7 @@ body.guide-body {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(18,18,18,0.25) 0%, rgba(18,18,18,0.55) 55%, rgba(18,18,18,0.96) 100%);
+    background: linear-gradient(180deg, rgba(var(--charcoal-rgb), 0.25) 0%, rgba(var(--charcoal-rgb), 0.55) 55%, rgba(var(--charcoal-rgb), 0.96) 100%);
 }
 
 .product-hero-content {
@@ -541,7 +541,7 @@ body.guide-body {
 .product-cta-primary {
     font-size: 1.05rem;
     padding: 1.1rem 2.8rem;
-    box-shadow: 0 8px 24px rgba(197, 160, 89, 0.35);
+    box-shadow: 0 8px 24px rgba(var(--gold-rgb), 0.35);
 }
 
 .product-body {
@@ -583,8 +583,8 @@ body.guide-body {
 /* Secondary, sticky-ish CTA repeated mid-page so a reader who scrolled past
    the hero doesn't have to scroll back up to book. */
 .product-cta-repeat {
-    background: rgba(197, 160, 89, 0.08);
-    border: 1px solid rgba(197, 160, 89, 0.3);
+    background: rgba(var(--gold-rgb), 0.08);
+    border: 1px solid rgba(var(--gold-rgb), 0.3);
     border-radius: 16px;
     padding: 1.75rem;
     text-align: center;
@@ -608,7 +608,7 @@ body.guide-body {
 
 .product-compare-card {
     background: var(--glass);
-    border: 1px solid rgba(197, 160, 89, 0.15);
+    border: 1px solid rgba(var(--gold-rgb), 0.15);
     border-radius: 14px;
     padding: 1.3rem 1.4rem;
 }
@@ -633,6 +633,18 @@ body.guide-body {
     font-size: 0.88rem;
     opacity: 0.8;
     line-height: 1.5;
+}
+
+/* A compare card can optionally contain its own CTA (e.g. two-option nodes like flight
+   compensation, where each card is its own affiliate link rather than one shared primary CTA
+   below the grid) — .btn defaults to inline with no vertical spacing of its own, which without
+   this rule sits directly against the paragraph's last line instead of below it. */
+.product-compare-card .btn {
+    display: block;
+    width: fit-content;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    padding: 0.65rem 1.6rem;
 }
 
 /* Related guides — pushed to the very bottom, visually the quietest section
@@ -667,7 +679,7 @@ body.guide-body {
     padding: 0.7rem 1rem;
     background: var(--glass);
     border-radius: 10px;
-    border-left: 3px solid rgba(197, 160, 89, 0.4);
+    border-left: 3px solid rgba(var(--gold-rgb), 0.4);
     transition: opacity 0.2s, border-color 0.2s;
 }
 
@@ -686,7 +698,7 @@ body.guide-body {
 .guide-footer {
     text-align: center;
     padding: 2.5rem 5%;
-    border-top: 1px solid rgba(197, 160, 89, 0.15);
+    border-top: 1px solid rgba(var(--gold-rgb), 0.15);
     opacity: 0.7;
     font-size: 0.9rem;
 }
@@ -714,7 +726,7 @@ body.guide-body {
     display: flex;
     flex-direction: column;
     background: var(--glass);
-    border: 1px solid rgba(197, 160, 89, 0.2);
+    border: 1px solid rgba(var(--gold-rgb), 0.2);
     border-radius: 18px;
     overflow: hidden;
     transition: transform 0.4s, border-color 0.3s;

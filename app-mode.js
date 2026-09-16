@@ -3,8 +3,8 @@
 // so a visitor lands directly on the timeline, no tap required). A vertical timeline of the 11 real
 // South Coast trip topics, drilling into each one's 4-layer content (General Guide / Go Deeper /
 // Compare Platforms / Visitors Also Checked). Ported from the validated mockup at
-// _preview/preview-timeline.html, wired to the real site's data (trip-planner.js, config.js) instead
-// of the mockup's self-contained fake nodes/sampleRooms.
+// _preview/preview-timeline.html, wired to the real site's data (data-loader.js's live Supabase
+// fetch, config.js) instead of the mockup's self-contained fake nodes/sampleRooms.
 //
 // Navigation model: real app-style FIXED LEVELS, not browser-history-based (matching content pages'
 // DOLB_PARENT mechanism — see guides-shared/guide-nav.js). Every screen has exactly one parent,
@@ -22,8 +22,13 @@
 // decisions; pushHashState's `replace` vs. push distinction is now just "does this count as a new
 // shareable URL," not "should Back be able to step through this."
 import { config } from './config.js';
-import { tripPlanner } from './trip-planner.js';
+import { loadTripPlanner } from './data-loader.js';
 import { mountQuickLauncher } from './guides-shared/quick-launcher.js';
+
+// tripPlanner is fetched once from Supabase (data-loader.js) — the old static trip-planner.js file
+// this used to import has been deleted (see .claude/memory/project_affiliate_db_schema_and_design_first.md
+// in paypal-poc). Populated below, before renderTimeline()/initFromHash() run.
+let tripPlanner = null;
 
 // ---- Hash state read/write (deep-linking only — see navigation-model note above) ----------------
 
@@ -217,7 +222,7 @@ function renderNextUp(node) {
         card.innerHTML = `
             <h3>${t.icon} ${t.label}</h3>
             <p class="fact">${t.blurb}</p>
-            <span class="btn">Explore</span>
+            <span class="btn secondary">Explore</span>
         `;
         card.addEventListener('click', () => showTopic(t.id));
         c.appendChild(card);
@@ -361,5 +366,15 @@ function initFromHash() {
     }
 }
 
-renderTimeline();
-initFromHash();
+// Bootstrap: fetch the Supabase-backed tripPlanner tree once, then render exactly as before. A
+// loading note is fine here since app-mode IS the homepage (loads open by default, per this file's
+// header comment) — there's no prior screen to flash before this resolves.
+document.getElementById('timeline-items').innerHTML = '<p class="no-recs-note">Loading…</p>';
+loadTripPlanner().then((tree) => {
+    tripPlanner = tree;
+    renderTimeline();
+    initFromHash();
+}).catch((err) => {
+    console.error('Failed to load trip planner data from Supabase:', err);
+    document.getElementById('timeline-items').innerHTML = '<p class="no-recs-note">Couldn’t load trip data right now — please refresh.</p>';
+});
