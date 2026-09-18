@@ -180,7 +180,9 @@ const GUIDE_COPY = {
     'sri-lanka-beach-packing-guide': { group: 'What to Bring', description: 'Climate, reef-safe sunscreen, plug types, and modest-dress essentials for temples.', image: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?auto=format&fit=crop&q=80&w=600' },
     'ahangama-vs-weligama': { group: 'Compare Towns', description: 'An honest comparison of Sri Lanka’s two neighbouring south coast surf towns to help you decide where to base your trip.', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=600' },
     'flight-booking': { group: 'Get There', description: 'Routing, timing, and what actually affects the fare into Bandaranaike International.', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=600' },
-    'flight-compensation': { group: 'Get There', description: 'What to do if your flight is delayed, cancelled, or overbooked — and whether you’re owed compensation.', image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=600' }
+    'flight-compensation': { group: 'Get There', description: 'What to do if your flight is delayed, cancelled, or overbooked — and whether you’re owed compensation.', image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=600' },
+    'esim-mobile-data': { group: 'Get Connected', description: 'eSIM vs. a physical SIM on arrival, which network actually covers the South Coast, and how to pick a data plan before you fly.', image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=600' },
+    'remote-work-connectivity': { group: 'Get Connected', description: 'Wifi reliability, backup data, and what working remotely from the South Coast actually looks like day to day.', image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=600' }
 };
 
 // One Layer-2 "deeper card" per guide, pointing at that guide's own site_path (the guide article).
