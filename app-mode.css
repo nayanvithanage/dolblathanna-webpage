@@ -296,6 +296,31 @@
 .platform-card-body p { font-size: 0.85rem; opacity: 0.85; line-height: 1.5; margin-bottom: 0.9rem; }
 .platform-card-body .btn { margin-top: auto; align-self: flex-start; }
 
+/* Bulleted fact list — a scannable alternative to .platform-card-body p, so a card reads as a set
+   of concrete facts at a glance rather than a paragraph to read. */
+.platform-card-features { list-style: none; margin: 0 0 0.9rem; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+.platform-card-features li {
+    font-size: 0.82rem; line-height: 1.4; opacity: 0.9; padding-left: 1.3rem; position: relative;
+}
+.platform-card-features li::before {
+    content: '✓'; position: absolute; left: 0; top: 0; color: var(--gold); font-weight: 600; font-size: 0.8rem;
+}
+
+/* One card among a set can be marked the genuinely-best pick (never a loud color swap — a subtle
+   border/glow, matching this site's gold accent rather than the more common orange "recommended"
+   convention). Applied sparingly — see renderPlatforms() in app-mode.js. */
+.platform-card-highlight {
+    border-color: rgba(var(--gold-rgb), 0.6);
+    box-shadow: 0 0 0 1px rgba(var(--gold-rgb), 0.25), 0 8px 24px rgba(0,0,0,0.35);
+}
+.platform-card-highlight .platform-card-banner { background: rgba(var(--gold-rgb), 0.18); }
+.platform-card-tag {
+    display: inline-block; background: var(--gold); color: var(--charcoal);
+    font-family: 'Inter', sans-serif; font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.5rem; border-radius: 50px;
+    white-space: nowrap;
+}
+
 /* ---- Topic map: locked (no drag/scroll/zoom) Leaflet embed showing real recommended places,
    sits right after Layer 1 (General Guide). "Static" in feel, real pinned coordinates underneath —
    see the topic's `map.places` data, sourced from OpenStreetMap Nominatim lookups (verified, not

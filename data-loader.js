@@ -172,6 +172,7 @@ const GUIDE_COPY = {
     'galle-fort-tours': { group: 'Real Experiences', description: 'History, what to see, and how to plan a half-day or full-day trip to Sri Lanka’s best-preserved colonial fort.', image: 'https://images.unsplash.com/photo-1748491829000-a88e5028e209?auto=format&fit=crop&q=80&w=600' },
     'yala-safari': { group: 'Real Experiences', description: 'Leopard density, best season, drive time, and what a Yala day actually looks like — plan it right before you book.', image: 'https://images.unsplash.com/photo-1621847473222-d85c022cbf07?auto=format&fit=crop&q=80&w=600' },
     'surf-lessons-weligama': { group: 'Real Experiences', description: 'Board choice, lesson length, and what to expect learning to surf on Weligama’s beginner-friendly bay.', image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&q=80&w=600' },
+    'airport-transfer-guide': { group: 'Get There', description: 'Private transfer vs. train vs. tuk-tuk, real drive times, and what to book before you fly.', image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=600' },
     'getting-around-ahangama': { group: 'Daily Transport', description: 'Tuk-tuks, scooters, and private vans — the full breakdown of costs, what to rent, and our honest recommendation.', image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=600' },
     'coastal-train-galle-matara': { group: 'Scenic Journeys', description: 'One of the great budget travel experiences on this coast — open doors, ocean views, and how to actually ride it.', image: 'https://images.unsplash.com/photo-1781749809764-b8f3e740dbe5?auto=format&fit=crop&q=80&w=600' },
     'ahangama-day-trip': { group: 'Day Trips & Excursions', description: 'Galle Fort, Koggala Lake, Yala safari — what’s realistic as a day trip and how to get there.', image: 'https://images.unsplash.com/photo-1778563623975-582b7723d026?auto=format&fit=crop&q=80&w=600' },
@@ -203,21 +204,104 @@ function guidesToGroups(guides) {
     return Array.from(groupsByLabel, ([label, items]) => ({ label, items }));
 }
 
+// Per-platform editorial copy the DB doesn't model — `features` (2-4 short, concrete, independently
+// verifiable facts) renders as a checkmarked list so a card reads at a glance rather than as a
+// paragraph to parse; `description` is kept only as a fallback for a platform not yet given real
+// facts. `highlight: true` is reserved for a platform that's a genuine, defensible best pick among
+// real alternatives shown on the same node — deliberately NOT set on any entry below, since every
+// live comparison right now is either a single platform (nothing to compare against) or a real,
+// roughly-even tradeoff (e.g. AirHelp vs. Compensair: speed vs. potential payout size, see
+// 6-compensair.md's comparison table in paypal-poc) — set it only when a future addition creates an
+// honest, one-sided case, not by default. `offer` is deliberately NOT used here — see the comment
+// above renderPlatforms() in app-mode.js: it must only ever hold a verified CUSTOMER-facing promo (a
+// real discount/code), never our own affiliate commission rate, and none of the platforms below have
+// a confirmed customer-facing promo on file yet. A platform with no entry here still renders — just
+// with no features/description, same as before this map existed.
+const PLATFORM_COPY = {
+    'Klook': {
+        features: [
+            'Real-time availability, not a static listing',
+            'Covers tours, activities, and stays across the South Coast',
+            'Book straight from search results, no separate account needed'
+        ]
+    },
+    'Kiwitaxi': {
+        features: [
+            'Fixed price agreed before you fly — no haggling on arrival',
+            'Licensed driver meets you in arrivals, not a generic ride-hail',
+            'Dedicated South Coast route, not a one-size quote'
+        ],
+        cta: 'See Fixed Prices'
+    },
+    'BikesBooking.com': {
+        features: [
+            'Compares 950+ rental companies at once',
+            '50,000+ vehicles worldwide, not just local operators',
+            'Hotel delivery available — not limited to what\'s parked outside'
+        ],
+        cta: 'Compare Rentals'
+    },
+    'Airalo': {
+        features: [
+            'Install before you fly, connected the moment you land',
+            'Mobitel (unlimited data) or Hutch (data + calls) — real Sri Lanka networks',
+            'No physical SIM, no airport counter queue'
+        ],
+        cta: 'Compare eSIM Plans'
+    },
+    'Aviasales': {
+        features: [
+            'Searches across agencies and airlines at once',
+            'Price-drop alerts on routes you\'re watching',
+            'No markup added on top of the fare shown'
+        ],
+        cta: 'Search Flights'
+    },
+    'AirHelp': {
+        features: [
+            'No win, no fee — free to file a claim',
+            'Covers delays, cancellations, and overbooking',
+            'Claims typically take 3–6 months to resolve'
+        ],
+        cta: 'Check Your Claim'
+    },
+    'Compensair': {
+        features: [
+            'No win, no fee — same claim basis as AirHelp',
+            'Application accepted or declined within ~30 days',
+            'Faster certainty, in exchange for a potentially smaller payout than AirHelp on a successful claim'
+        ],
+        cta: 'Check Your Claim'
+    }
+};
+
 // Layer 3 "platform" cards come from products with a real link — missing/placeholder products are
-// deliberately omitted (no fake "coming soon" card), matching the existing site convention.
+// deliberately omitted (no fake "coming soon" card), matching the existing site convention. This
+// section compares PLATFORMS, not individual products — a sector with several experiences all booked
+// through the same platform (e.g. Tours & Activities: whale watching, Galle Fort, Yala, and surf
+// lessons are all Klook today) must render that platform once, not once per experience, or it reads
+// as duplicate cards. De-duped by platform name; the first live product found for a given platform
+// wins the card's link (representing the platform generically for this sector, not any one specific
+// booking) — this stays correct once a real second platform (Viator, GetYourGuide, etc.) is added
+// for one of these experiences, since it'll then show as its own distinct card alongside Klook's.
 function productsToPlatforms(categoryIds, tree) {
-    const platforms = [];
+    const seen = new Map();
     categoryIds.forEach(catId => {
         (tree.productsByCategory.get(catId) || []).forEach(p => {
             if ((p.status === 'live_direct' || p.status === 'live_generic') && p.link_url) {
-                platforms.push({
-                    name: p.platform || p.name, description: '', offer: null, link: p.link_url,
-                    cta: 'Check Offers & Prices'
-                });
+                const name = p.platform || p.name;
+                if (!seen.has(name)) seen.set(name, p);
             }
         });
     });
-    return platforms;
+    return Array.from(seen, ([name, p]) => {
+        const copy = PLATFORM_COPY[name] || {};
+        return {
+            name, description: copy.description || '', features: copy.features || null,
+            highlight: copy.highlight || false, offer: null, link: p.link_url,
+            cta: copy.cta || 'Check Offers & Prices'
+        };
+    });
 }
 
 export async function loadTripPlanner() {

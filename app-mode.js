@@ -187,6 +187,15 @@ function renderRecommendations(node) {
 // status badge signaling the site is under construction. A platform with no `link` yet simply isn't
 // clickable (no href, no CTA button) rather than a dead link or a visibly "pending" state. `offer`
 // only ever holds a verified CUSTOMER-facing promo — never our own affiliate commission rate.
+//
+// `features` (an array of short fact strings) is the preferred way to fill a card's body — renders
+// as a checkmarked list, scannable at a glance rather than a paragraph to read. `description` (a
+// plain string) is kept as a fallback for any platform that hasn't been given real bulleted facts
+// yet, so nothing regresses to an empty card while facts are still being written per platform.
+// `highlight: true` marks the one genuinely-best option among the cards shown for a given node (not
+// every node needs one) — a subtle accent treatment, never a loud color change, and only ever set
+// when there's a real, defensible reason (see PLATFORM_COPY in data-loader.js for the reasoning
+// behind each one used).
 function renderPlatforms(node) {
     const c = document.getElementById('planner-cards');
     c.innerHTML = '';
@@ -197,13 +206,18 @@ function renderPlatforms(node) {
     node.platforms.forEach(p => {
         const tag = p.link ? 'a' : 'div';
         const hrefAttr = p.link ? ` href="${p.link}" target="_blank" rel="noopener sponsored"` : '';
-        c.innerHTML += `<${tag} class="platform-card"${hrefAttr}>
+        const cardClass = p.highlight ? 'platform-card platform-card-highlight' : 'platform-card';
+        const featuresHtml = (p.features && p.features.length)
+            ? `<ul class="platform-card-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul>`
+            : (p.description ? `<p>${p.description}</p>` : '');
+        c.innerHTML += `<${tag} class="${cardClass}"${hrefAttr}>
             <div class="platform-card-banner">
                 <h3>${p.name}</h3>
+                ${p.highlight ? '<span class="platform-card-tag">Best Pick</span>' : ''}
             </div>
             <div class="platform-card-body">
                 ${p.offer ? `<span class="offer-badge">${p.offer}</span>` : ''}
-                ${p.description ? `<p>${p.description}</p>` : ''}
+                ${featuresHtml}
                 ${p.link ? `<span class="btn">${p.cta}</span>` : ''}
             </div>
         </${tag}>`;
