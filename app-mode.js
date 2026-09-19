@@ -134,24 +134,15 @@ function renderGeneral(node) {
 // ---- Layer 2 — Go Deeper ------------------------------------------------------------------
 
 // Entry-point cards into this topic's own full sub-guides, grouped under labeled sub-categories.
-// The 'rooms' source reads config.sections.rooms directly (the site's real, single source of truth
-// for stay listings — NOT the mockup's local fake sampleRooms array) so this data is never
-// duplicated between here and the old #rooms homepage section it replaces.
+// Where to Stay's 7 type-guides (guest-house/hostel/surf-camp/heritage-stay/boutique-hotel/villa/
+// resort) render through the same `groups` path as every other sector now — see
+// data-loader.js's comment on `recommendations` and
+// tools/supabase/seed-18-where-to-stay-type-restructure.sql. The old config.sections.rooms special
+// case (5 hand-picked, town-first cards) is gone; config.js's `rooms` array is unused dead data as
+// of this change and can be deleted.
 function renderRecommendations(node) {
     const c = document.getElementById('planner-recommendations');
     c.innerHTML = '';
-    if (node.recommendations.source === 'rooms') {
-        config.sections.rooms.forEach(room => {
-            c.innerHTML += `<a class="deeper-card" style="background-image:url('${room.image}');" href="${room.link}">
-                <div class="deeper-card-content">
-                    <span class="tag">${room.location}</span>
-                    <h3>${room.name}</h3>
-                    <p>${room.description}</p>
-                </div>
-            </a>`;
-        });
-        return;
-    }
     if (node.recommendations.groups && node.recommendations.groups.length > 0) {
         node.recommendations.groups.forEach(group => {
             const groupEl = document.createElement('div');

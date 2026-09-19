@@ -20,52 +20,11 @@ export const config = {
     sections: {
         // Hero content is now driven by data-loader.js's loadTripPlanner() (the interactive
         // "Plan Your Trip" grid, fetched live from Supabase) — see title/subtitle there instead.
-        // These are curated recommendations across the South Coast region, not Dolblathanna's own
-        // inventory. Dolblathanna is not currently taking bookings (see About blurb on the homepage).
-        // Each entry gets an affiliate placeholder comment next to it — wire in a real link/tracking
-        // ID only once a specific affiliate program is approved.
-        rooms: [
-            {
-                id: 1,
-                name: "Boutique Beach Stay, Mirissa",
-                location: "Mirissa",
-                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1200",
-                description: "Small, design-led guesthouses a short walk from Mirissa's curved beach — good for couples who want boutique comfort near the harbour and whale-watching boats.",
-                link: "./stay/beachfront-mirissa.html" // Real, verified properties — see stay/beachfront-mirissa.html for affiliate placeholders
-            },
-            {
-                id: 2,
-                name: "Surf Camp, Weligama",
-                location: "Weligama",
-                image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=1200",
-                description: "Bunk or private-room surf camps right on Weligama Bay's beginner-friendly break — boards, lessons, and a built-in crowd of fellow travellers included.",
-                link: "./stay/surf-camps-weligama.html" // Real, verified properties — see stay/surf-camps-weligama.html for affiliate placeholders
-            },
-            {
-                id: 3,
-                name: "Heritage Stay, Galle Fort",
-                location: "Galle Fort",
-                image: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=1200",
-                description: "Restored Dutch-colonial townhouses inside the fort walls — cobbled lanes, rampart sunsets, and a completely different pace from the beach towns nearby.",
-                link: "./stay/heritage-galle-fort.html" // Real, verified properties — see stay/heritage-galle-fort.html for affiliate placeholders
-            },
-            {
-                id: 4,
-                name: "Beachfront Escape, Tangalle",
-                location: "Tangalle",
-                image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=1200",
-                description: "Quieter, wilder beaches an hour east of Ahangama — the pick for travellers who want space, fewer crowds, and long empty-sand walks.",
-                link: "./stay/beachfront-tangalle.html" // Real, verified properties — see stay/beachfront-tangalle.html for affiliate placeholders
-            },
-            {
-                id: 5,
-                name: "Guesthouses in Ahangama",
-                location: "Ahangama",
-                image: "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=1200",
-                description: "Our own home base — a mellow surf town with a dense strip of cafes, board rentals, and guesthouses. See our guides for what we actually recommend here.",
-                link: "./stay/guesthouses-ahangama.html" // Real, verified properties — see stay/guesthouses-ahangama.html for affiliate placeholders
-            }
-        ],
+        // Where to Stay's homepage cards used to come from a hand-picked `rooms` array here (5
+        // town-first cards); removed 2026-09-19 once the Supabase DB had all 7 real type-guides
+        // seeded — see tools/supabase/seed-18-where-to-stay-type-restructure.sql. Where to Stay
+        // now renders through `groups` (data-loader.js) same as every other sector.
+        //
         // Recommended ways to get around the region — not an owned fleet. Affiliate placeholders
         // per entry, same rule as rooms above.
         rentals: {

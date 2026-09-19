@@ -768,6 +768,14 @@ body.guide-body {
     letter-spacing: 1px;
 }
 
+.stay-card-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
 .stay-card-location {
     display: inline-block;
     font-family: 'Cinzel', serif;
@@ -775,7 +783,32 @@ body.guide-body {
     letter-spacing: 1px;
     font-size: 0.7rem;
     color: var(--rust);
-    margin-bottom: 0.75rem;
+}
+
+/* Rating badge — real numeric score + review count, per-property, sourced from the listing
+   platform itself (see products.rating/rating_source/review_count). Never rendered for a
+   product with no rating (e.g. sourcing found none, or it wasn't statistically meaningful). */
+.stay-card-rating {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    background: rgba(var(--gold-rgb), 0.14);
+    border: 1px solid rgba(var(--gold-rgb), 0.3);
+    border-radius: 50px;
+    padding: 0.15rem 0.65rem;
+    white-space: nowrap;
+}
+
+.stay-card-rating-score {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--gold);
+}
+
+.stay-card-rating-count {
+    font-size: 0.7rem;
+    opacity: 0.7;
 }
 
 .stay-card-body p {
@@ -786,10 +819,99 @@ body.guide-body {
     margin-bottom: 1.25rem;
 }
 
-.stay-card-body .btn {
-    align-self: flex-start;
+/* Amenities/facts list — reuses app-mode's checkmarked-list pattern (see .platform-card-features
+   in app-mode.css) for visual consistency across the two "scannable facts" contexts on-site. */
+.stay-card-summary {
+    list-style: none;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1;
+}
+
+.stay-card-summary li {
     font-size: 0.85rem;
-    padding: 0.6rem 1.5rem;
+    line-height: 1.4;
+    opacity: 0.85;
+    padding-left: 1.25rem;
+    position: relative;
+}
+
+.stay-card-summary li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--gold);
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
+/* Multiple platform CTA buttons per property (Klook/Booking.com/Agoda — whichever have a real
+   link), shown side by side rather than picking one. See guides-shared/stay-data-loader.js. */
+.stay-card-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.stay-card-links .btn {
+    font-size: 0.82rem;
+    padding: 0.6rem 1.25rem;
+}
+
+.stay-card-no-links {
+    font-size: 0.85rem;
+    opacity: 0.6;
+    font-style: italic;
+}
+
+/* Location filter chips — a visitor picks a type-guide (this page) first, then narrows by town.
+   "All" is always first and selected by default. */
+.stay-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    padding: 0 5% 2.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.stay-filter-chip {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.3px;
+    background: transparent;
+    border: 1px solid rgba(var(--gold-rgb), 0.35);
+    color: var(--white);
+    opacity: 0.8;
+    border-radius: 50px;
+    padding: 0.5rem 1.3rem;
+    cursor: pointer;
+    transition: background 0.25s, border-color 0.25s, opacity 0.25s;
+}
+
+.stay-filter-chip:hover {
+    opacity: 1;
+    border-color: var(--gold);
+}
+
+.stay-filter-chip.is-active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--charcoal);
+    opacity: 1;
+    font-weight: 600;
+}
+
+.stay-empty-note {
+    text-align: center;
+    opacity: 0.7;
+    padding: 3rem 5%;
+    font-size: 0.95rem;
 }
 
 .stay-note {

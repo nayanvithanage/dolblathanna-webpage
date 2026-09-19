@@ -25,11 +25,16 @@ export default defineConfig({
         guideWeligamaNomad: resolve(__dirname, 'guides/weligama-surf-digital-nomad-guide.html'),
         guideCoastalTrain: resolve(__dirname, 'guides/coastal-train-galle-matara.html'),
         guideYalaSafari: resolve(__dirname, 'guides/yala-safari-guide.html'),
-        stayMirissa: resolve(__dirname, 'stay/beachfront-mirissa.html'),
-        stayWeligama: resolve(__dirname, 'stay/surf-camps-weligama.html'),
-        stayGalleFort: resolve(__dirname, 'stay/heritage-galle-fort.html'),
-        stayTangalle: resolve(__dirname, 'stay/beachfront-tangalle.html'),
-        stayAhangama: resolve(__dirname, 'stay/guesthouses-ahangama.html'),
+        // Where to Stay: 7 type pages (guide + category collapsed into one DB-driven page each —
+        // see stay-data-loader.js/stay-page.js), replacing the old 5 town-first static pages
+        // (2026-09-19 restructure, tools/supabase/seed-18-where-to-stay-type-restructure.sql).
+        stayGuestHouse: resolve(__dirname, 'stay/guest-house.html'),
+        stayHostel: resolve(__dirname, 'stay/hostel.html'),
+        staySurfCamp: resolve(__dirname, 'stay/surf-camp.html'),
+        stayHeritageStay: resolve(__dirname, 'stay/heritage-stay.html'),
+        stayBoutiqueHotel: resolve(__dirname, 'stay/boutique-hotel.html'),
+        stayVilla: resolve(__dirname, 'stay/villa.html'),
+        stayResort: resolve(__dirname, 'stay/resort.html'),
         productYalaSafari: resolve(__dirname, 'products/yala-safari.html'),
         productMirissaWhales: resolve(__dirname, 'products/mirissa-whale-watching.html'),
         productGalleFort: resolve(__dirname, 'products/galle-fort-tours.html'),
@@ -38,10 +43,13 @@ export default defineConfig({
         // Stub pages — see tools/supabase/seed-13-stub-site-paths.sql (paypal-poc repo) for the DB
         // rows these fill in; generated as "coming soon" placeholders so site structure matches the
         // Supabase DB in full. Real content for these lands later, one at a time.
-        guideGuesthouses: resolve(__dirname, 'guides/guesthouses.html'),
-        guideSurfCamps: resolve(__dirname, 'guides/surf-camps.html'),
-        guideHeritageBoutique: resolve(__dirname, 'guides/heritage-boutique-stays.html'),
-        guideBeachfrontVillas: resolve(__dirname, 'guides/beachfront-villas-resorts.html'),
+        guideGuestHouse: resolve(__dirname, 'guides/guest-house.html'),
+        guideHostel: resolve(__dirname, 'guides/hostel.html'),
+        guideSurfCamp: resolve(__dirname, 'guides/surf-camp.html'),
+        guideHeritageStay: resolve(__dirname, 'guides/heritage-stay.html'),
+        guideBoutiqueHotel: resolve(__dirname, 'guides/boutique-hotel.html'),
+        guideVilla: resolve(__dirname, 'guides/villa.html'),
+        guideResort: resolve(__dirname, 'guides/resort.html'),
         guideFlightBooking: resolve(__dirname, 'guides/flight-booking.html'),
         guideFlightCompensation: resolve(__dirname, 'guides/flight-compensation.html'),
         guideAirportTransferGuide: resolve(__dirname, 'guides/airport-transfer-guide.html'),

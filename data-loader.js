@@ -180,6 +180,16 @@ const GUIDE_COPY = {
     'sri-lanka-travel-insurance-guide': { group: 'Get Covered', description: 'Surf, scooter, and medical cover explained — what to check before you buy a policy.', image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=600' },
     'sri-lanka-beach-packing-guide': { group: 'What to Bring', description: 'Climate, reef-safe sunscreen, plug types, and modest-dress essentials for temples.', image: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?auto=format&fit=crop&q=80&w=600' },
     'ahangama-vs-weligama': { group: 'Compare Towns', description: 'An honest comparison of Sri Lanka’s two neighbouring south coast surf towns to help you decide where to base your trip.', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=600' },
+    // Where to Stay's 7 type-guides (2026-09-19 restructure — see
+    // tools/supabase/seed-18-where-to-stay-type-restructure.sql). Images reused from the old
+    // config.sections.rooms array rather than dropped.
+    'guest-house': { group: 'Where to Stay', description: 'Small, simple, often family-run stays across Ahangama, Mirissa, and Weligama.', image: 'https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?auto=format&fit=crop&q=80&w=600' },
+    'hostel': { group: 'Where to Stay', description: 'Social, budget-friendly stays with a communal feel — good for solo travellers.', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=600' },
+    'surf-camp': { group: 'Where to Stay', description: 'Bunk or private-room surf camps right on Weligama Bay’s beginner-friendly break.', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=600' },
+    'heritage-stay': { group: 'Where to Stay', description: 'Restored Dutch-colonial townhouses inside Galle Fort’s ramparts.', image: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=600' },
+    'boutique-hotel': { group: 'Where to Stay', description: 'Design-led, personal-feeling stays in Galle Fort and Mirissa.', image: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&q=80&w=600' },
+    'villa': { group: 'Where to Stay', description: 'Private, self-contained stays with real space around them in Mirissa and Tangalle.', image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=600' },
+    'resort': { group: 'Where to Stay', description: 'Larger beach resorts in Tangalle with the full set of on-site amenities.', image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=600' },
     'flight-booking': { group: 'Get There', description: 'Routing, timing, and what actually affects the fare into Bandaranaike International.', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=600' },
     'flight-compensation': { group: 'Get There', description: 'What to do if your flight is delayed, cancelled, or overbooked — and whether you’re owed compensation.', image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=600' },
     'esim-mobile-data': { group: 'Get Connected', description: 'eSIM vs. a physical SIM on arrival, which network actually covers the South Coast, and how to pick a data plan before you fly.', image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=600' },
@@ -328,13 +338,10 @@ export async function loadTripPlanner() {
             general: { intro: copy.intro || '', readMore: copy.readMore || [] },
             map: copy.map || null,
             recommendations: {
-                // Where to Stay's 4 type-guides are real DB rows now, but their categories have no
-                // seeded products yet (22 real properties still need re-sorting — see
-                // .claude/memory/project_affiliate_db_schema_and_design_first.md). Keep this sector
-                // rendering from config.sections.rooms (today's 5 real location pages) until that
-                // sorting happens; switch it over to `groups` once Where to Stay's products are
-                // seeded, matching every other sector.
-                source: slug === 'where-to-stay' ? 'rooms' : null,
+                // Where to Stay's 7 type-guides (guest-house/hostel/surf-camp/heritage-stay/
+                // boutique-hotel/villa/resort — restructured 2026-09-19, see
+                // tools/supabase/seed-18-where-to-stay-type-restructure.sql) are real, seeded DB
+                // rows now, same as every other sector — no more config.sections.rooms special case.
                 groups,
                 radar: []
             },
