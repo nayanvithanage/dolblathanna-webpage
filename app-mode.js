@@ -140,28 +140,73 @@ function renderGeneral(node) {
 // tools/supabase/seed-18-where-to-stay-type-restructure.sql. The old config.sections.rooms special
 // case (5 hand-picked, town-first cards) is gone; config.js's `rooms` array is unused dead data as
 // of this change and can be deleted.
-function renderRecommendations(node) {
+// Deeper-card filter state (Individual/Package chips) — module-scoped like stay-page.js's
+// activeTown, reset to 'all' each time a new topic renders (see showTopic -> renderRecommendations)
+// so re-entering a topic always starts unfiltered rather than remembering a prior selection.
+let activeDeeperFilter = 'all';
+
+const DEEPER_FILTER_LABELS = { individual: 'Individual', package: 'Package' };
+
+function renderDeeperFilterBar(groups) {
+    const bar = document.getElementById('planner-filter-bar');
+    // Only guides.type values actually present in this node drive the chip set — most sectors never
+    // set `type` at all (null on every card), so this renders nothing for them, same as before.
+    const typesPresent = new Set();
+    groups.forEach(g => g.items.forEach(item => { if (item.type) typesPresent.add(item.type); }));
+    if (typesPresent.size < 2) { bar.innerHTML = ''; return; } // nothing to filter with only 0-1 types
+    const chips = ['all', ...Array.from(typesPresent)];
+    bar.innerHTML = chips.map(t => {
+        const label = t === 'all' ? 'All' : (DEEPER_FILTER_LABELS[t] || t);
+        return `<button class="stay-filter-chip${t === activeDeeperFilter ? ' is-active' : ''}" data-filter="${t}">${label}</button>`;
+    }).join('');
+    bar.querySelectorAll('.stay-filter-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+            activeDeeperFilter = btn.dataset.filter;
+            renderDeeperFilterBar(groups);
+            renderDeeperCards(groups);
+        });
+    });
+}
+
+function renderDeeperCards(groups) {
     const c = document.getElementById('planner-recommendations');
     c.innerHTML = '';
-    if (node.recommendations.groups && node.recommendations.groups.length > 0) {
-        node.recommendations.groups.forEach(group => {
-            const groupEl = document.createElement('div');
-            groupEl.className = 'deeper-group';
-            let cardsHtml = '';
-            group.items.forEach(r => {
-                const bg = r.image ? ` style="background-image:url('${r.image}');"` : '';
-                cardsHtml += `<a class="deeper-card"${bg} href="${r.href}">
-                    <div class="deeper-card-content">
-                        <h3>${r.name}</h3>
-                        <p>${r.description}</p>
-                    </div>
-                </a>`;
-            });
-            groupEl.innerHTML = `<div class="deeper-group-label">${group.label}</div><div class="deeper-cards">${cardsHtml}</div>`;
-            c.appendChild(groupEl);
+    groups.forEach(group => {
+        const items = activeDeeperFilter === 'all'
+            ? group.items
+            : group.items.filter(r => r.type === activeDeeperFilter);
+        if (items.length === 0) return; // whole group filtered out — skip its label too
+        const groupEl = document.createElement('div');
+        groupEl.className = 'deeper-group';
+        let cardsHtml = '';
+        items.forEach(r => {
+            const bg = r.image ? ` style="background-image:url('${r.image}');"` : '';
+            cardsHtml += `<a class="deeper-card"${bg} href="${r.href}">
+                <div class="deeper-card-content">
+                    <h3>${r.name}</h3>
+                    <p>${r.description}</p>
+                </div>
+            </a>`;
         });
+        groupEl.innerHTML = `<div class="deeper-group-label">${group.label}</div><div class="deeper-cards">${cardsHtml}</div>`;
+        c.appendChild(groupEl);
+    });
+    if (c.innerHTML === '') {
+        c.innerHTML = `<p class="no-recs-note">No ${DEEPER_FILTER_LABELS[activeDeeperFilter] || ''} experiences in this list yet.</p>`;
+    }
+}
+
+function renderRecommendations(node) {
+    const c = document.getElementById('planner-recommendations');
+    const bar = document.getElementById('planner-filter-bar');
+    activeDeeperFilter = 'all'; // reset on every topic entry, not just the first render
+    if (node.recommendations.groups && node.recommendations.groups.length > 0) {
+        renderDeeperFilterBar(node.recommendations.groups);
+        renderDeeperCards(node.recommendations.groups);
         return;
     }
+    bar.innerHTML = '';
+    c.innerHTML = '';
     if (node.recommendations.radar.length > 0) {
         node.recommendations.radar.forEach(r => {
             c.innerHTML += `<div class="planner-radar-item"><span class="tag">On Our Radar</span><h4>${r.name}</h4><p>${r.description}</p></div>`;

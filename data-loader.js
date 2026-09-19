@@ -172,6 +172,21 @@ const GUIDE_COPY = {
     'galle-fort-tours': { group: 'Real Experiences', description: 'History, what to see, and how to plan a half-day or full-day trip to Sri Lanka’s best-preserved colonial fort.', image: 'https://images.unsplash.com/photo-1748491829000-a88e5028e209?auto=format&fit=crop&q=80&w=600' },
     'yala-safari': { group: 'Real Experiences', description: 'Leopard density, best season, drive time, and what a Yala day actually looks like — plan it right before you book.', image: 'https://images.unsplash.com/photo-1621847473222-d85c022cbf07?auto=format&fit=crop&q=80&w=600' },
     'surf-lessons-weligama': { group: 'Real Experiences', description: 'Board choice, lesson length, and what to expect learning to surf on Weligama’s beginner-friendly bay.', image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&q=80&w=600' },
+    'snorkeling-turtles-mirissa': { group: 'Real Experiences', description: 'A short boat ride to a real, reliable spot where turtles feed close to the surface — no dive certification needed.', image: 'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?auto=format&fit=crop&q=80&w=600' },
+    'udawalawe-safari': { group: 'Real Experiences', description: 'Sri Lanka’s most reliable wild elephant sightings — how it compares to Yala, and what a day actually looks like.', image: 'https://images.unsplash.com/photo-1564760055775-d63b17a55c44?auto=format&fit=crop&q=80&w=600' },
+    'south-coast-day-tour': { group: 'Day Tours from Colombo', description: 'A guided South Coast day for visitors based in Colombo/Negombo — Galle Fort, turtles, and a beach stop in one day.', image: 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&q=80&w=600' },
+    // Tours & Activities full inventory coverage (2026-09-19) — see tools/supabase/seed-27/-28/-29
+    // (paypal-poc repo).
+    'galle-fort-tuk-tuk-tour': { group: 'Real Experiences', description: 'A wider tuk-tuk loop past Galle Fort, stilt fishermen, and Koggala Lake — more ground than a Fort-only walk.', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=600' },
+    'kosgoda-turtle-hatchery': { group: 'Real Experiences', description: 'A private visit to a real sea turtle conservation hatchery near Bentota, plus a gem workshop stop.', image: 'https://images.unsplash.com/photo-1591025207163-942350e47db2?auto=format&fit=crop&q=80&w=600' },
+    'koggala-lake-safari': { group: 'Real Experiences', description: 'A calm boat safari across Koggala Lake to Cinnamon Island — monkeys, mangroves, and a cinnamon demo.', image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&q=80&w=600' },
+    'tea-estate-visit': { group: 'Real Experiences', description: 'Handunugoda Tea Estate, home of Virgin White Tea — a real tea-country experience without the hill-country drive.', image: 'https://images.unsplash.com/photo-1524350876685-274059332603?auto=format&fit=crop&q=80&w=600' },
+    'sinharaja-rainforest': { group: 'Real Experiences', description: 'A guided hike into Sinharaja, a UNESCO World Heritage rainforest, departing from Mirissa.', image: 'https://images.unsplash.com/photo-1552083375-1447ce886485?auto=format&fit=crop&q=80&w=600' },
+    'stilt-fishermen-experience': { group: 'Real Experiences', description: 'Sri Lanka’s iconic stilt fishermen, seen along the South Coast — the honest story, and how to actually see it.', image: 'https://images.unsplash.com/photo-1546484396-fb3fc6f95f98?auto=format&fit=crop&q=80&w=600' },
+    'scuba-diving-hikkaduwa': { group: 'Real Experiences', description: 'A full PADI Open Water certification course off Hikkaduwa’s reefs — real diving, not just snorkeling.', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=600' },
+    'colombo-yala-ella-5-day-tour': { group: 'Multi-Day Tours', description: 'A 5-day private tour covering 20+ attractions across 10 districts — see more of Sri Lanka in one organised trip.', image: 'https://images.unsplash.com/photo-1586183189334-1a89caf3a7e0?auto=format&fit=crop&q=80&w=600' },
+    'ella-nine-arches-little-adams-peak': { group: 'Multi-Day Tours', description: 'Nine Arches Bridge, a mini train ride, an elephant orphanage, and Little Adam’s Peak in one guided Ella day.', image: 'https://images.unsplash.com/photo-1586183189334-1a89caf3a7e0?auto=format&fit=crop&q=80&w=600' },
+    'sri-lanka-multi-day-tour': { group: 'Multi-Day Tours', description: 'A 10-day private tour covering Sigiriya, Polonnaruwa, and elephant-migration national parks.', image: 'https://images.unsplash.com/photo-1566296314736-6eaac1ca0cb9?auto=format&fit=crop&q=80&w=600' },
     'airport-transfer-guide': { group: 'Get There', description: 'Private transfer vs. train vs. tuk-tuk, real drive times, and what to book before you fly.', image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=600' },
     'getting-around-ahangama': { group: 'Daily Transport', description: 'Tuk-tuks, scooters, and private vans — the full breakdown of costs, what to rent, and our honest recommendation.', image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=600' },
     'coastal-train-galle-matara': { group: 'Scenic Journeys', description: 'One of the great budget travel experiences on this coast — open doors, ocean views, and how to actually ride it.', image: 'https://images.unsplash.com/photo-1781749809764-b8f3e740dbe5?auto=format&fit=crop&q=80&w=600' },
@@ -208,7 +223,13 @@ function guidesToGroups(guides) {
         if (!groupsByLabel.has(label)) groupsByLabel.set(label, []);
         groupsByLabel.get(label).push({
             name: guide.title, description: copy.description || '', href: `../${guide.site_path}`,
-            image: copy.image || null
+            image: copy.image || null,
+            // guides.type from the DB — reused per-sector for whatever filter that sector needs
+            // (Where to Stay: accommodation type, not used here; Tours & Activities:
+            // 'individual' | 'package', drives the chip filter in renderRecommendations()). Most
+            // sectors don't set this at all, so it's null/undefined for them — filter UI only
+            // renders when at least one card in the node actually has a type value.
+            type: guide.type || null
         });
     });
     return Array.from(groupsByLabel, ([label, items]) => ({ label, items }));

@@ -25,6 +25,23 @@ export default defineConfig({
         guideWeligamaNomad: resolve(__dirname, 'guides/weligama-surf-digital-nomad-guide.html'),
         guideCoastalTrain: resolve(__dirname, 'guides/coastal-train-galle-matara.html'),
         guideYalaSafari: resolve(__dirname, 'guides/yala-safari-guide.html'),
+        // Tours & Activities refinement (2026-09-19) — 2 new individual-activity guides + 1 package
+        // guide, see tools/supabase/seed-24-tours-activities-refinement.sql (paypal-poc repo).
+        guideMirissaSnorkeling: resolve(__dirname, 'guides/mirissa-snorkeling-turtles-guide.html'),
+        guideUdawalaweSafari: resolve(__dirname, 'guides/udawalawe-safari-guide.html'),
+        guideSouthCoastDayTour: resolve(__dirname, 'guides/south-coast-day-tour-guide.html'),
+        // Tours & Activities full inventory coverage (2026-09-19) — 10 new guide+product pairs for
+        // products that went live via seed-27/-28/-29 (paypal-poc repo, tools/supabase/).
+        guideGalleFortTukTuk: resolve(__dirname, 'guides/galle-fort-tuk-tuk-tour-guide.html'),
+        guideKosgodaTurtleHatchery: resolve(__dirname, 'guides/kosgoda-turtle-hatchery-guide.html'),
+        guideKoggalaLakeSafari: resolve(__dirname, 'guides/koggala-lake-safari-guide.html'),
+        guideTeaEstateVisit: resolve(__dirname, 'guides/tea-estate-visit-guide.html'),
+        guideSinharajaRainforest: resolve(__dirname, 'guides/sinharaja-rainforest-guide.html'),
+        guideStiltFishermen: resolve(__dirname, 'guides/stilt-fishermen-experience-guide.html'),
+        guideScubaDivingHikkaduwa: resolve(__dirname, 'guides/scuba-diving-hikkaduwa-guide.html'),
+        guideColomboYalaElla5Day: resolve(__dirname, 'guides/colombo-yala-ella-5-day-tour-guide.html'),
+        guideEllaNineArches: resolve(__dirname, 'guides/ella-nine-arches-little-adams-peak-guide.html'),
+        guideSriLankaMultiDayTour: resolve(__dirname, 'guides/sri-lanka-multi-day-tour-guide.html'),
         // Where to Stay: 7 type pages (guide + category collapsed into one DB-driven page each —
         // see stay-data-loader.js/stay-page.js), replacing the old 5 town-first static pages
         // (2026-09-19 restructure, tools/supabase/seed-18-where-to-stay-type-restructure.sql).
@@ -40,6 +57,19 @@ export default defineConfig({
         productGalleFort: resolve(__dirname, 'products/galle-fort-tours.html'),
         productWeligamaSurf: resolve(__dirname, 'products/weligama-surf-lessons.html'),
         productAirportTransfer: resolve(__dirname, 'products/colombo-airport-transfer.html'),
+        productMirissaSnorkeling: resolve(__dirname, 'products/mirissa-snorkeling-turtles.html'),
+        productUdawalaweSafari: resolve(__dirname, 'products/udawalawe-safari.html'),
+        productSouthCoastDayTour: resolve(__dirname, 'products/south-coast-day-tour.html'),
+        productGalleFortTukTuk: resolve(__dirname, 'products/galle-fort-tuk-tuk-tour.html'),
+        productKosgodaTurtleHatchery: resolve(__dirname, 'products/kosgoda-turtle-hatchery.html'),
+        productKoggalaLakeSafari: resolve(__dirname, 'products/koggala-lake-safari.html'),
+        productTeaEstateVisit: resolve(__dirname, 'products/tea-estate-visit.html'),
+        productSinharajaRainforest: resolve(__dirname, 'products/sinharaja-rainforest.html'),
+        productStiltFishermen: resolve(__dirname, 'products/stilt-fishermen-experience.html'),
+        productScubaDivingHikkaduwa: resolve(__dirname, 'products/scuba-diving-hikkaduwa.html'),
+        productColomboYalaElla5Day: resolve(__dirname, 'products/colombo-yala-ella-5-day-tour.html'),
+        productEllaNineArches: resolve(__dirname, 'products/ella-nine-arches-little-adams-peak.html'),
+        productSriLankaMultiDayTour: resolve(__dirname, 'products/sri-lanka-multi-day-tour.html'),
         // Stub pages — see tools/supabase/seed-13-stub-site-paths.sql (paypal-poc repo) for the DB
         // rows these fill in; generated as "coming soon" placeholders so site structure matches the
         // Supabase DB in full. Real content for these lands later, one at a time.
