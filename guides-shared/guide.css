@@ -1003,3 +1003,23 @@ body.guide-body {
         padding: 1rem 6% 4rem;
     }
 }
+
+.guide-article .img-credit,
+.img-credit {
+    font-size: 0.72rem;
+    opacity: 0.7;
+    margin: 0.4rem 0 1.4rem;
+}
+.guide-article .img-credit a,
+.img-credit a {
+    color: inherit;
+    text-decoration: underline;
+}
+.img-credit-hero {
+    position: absolute;
+    right: 5%;
+    bottom: 0.6rem;
+    margin: 0;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
