@@ -179,7 +179,7 @@ const GUIDE_COPY = {
     // (paypal-poc repo).
     'galle-fort-tuk-tuk-tour': { group: 'Real Experiences', description: 'A wider tuk-tuk loop past Galle Fort, stilt fishermen, and Koggala Lake — more ground than a Fort-only walk.', image: 'photos/galle-tuk-tuk.jpg' },
     'kosgoda-turtle-hatchery': { group: 'Real Experiences', description: 'A real 6-stop South Coast day tour that includes a sea turtle conservation visit alongside Galle Fort and stilt fishermen.', image: 'https://images.unsplash.com/photo-1591025207163-942350e47db2?auto=format&fit=crop&q=80&w=600' },
-    'koggala-lake-safari': { group: 'Real Experiences', description: 'A calm boat safari across Koggala Lake to Cinnamon Island — monkeys, mangroves, and a cinnamon demo.', image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&q=80&w=600' },
+    'koggala-lake-safari': { group: 'Real Experiences', description: 'A calm boat safari across Koggala Lake to Cinnamon Island — monkeys, mangroves, and a cinnamon demo.', image: 'photos/koggala-lake.jpg' },
     'tea-estate-visit': { group: 'Real Experiences', description: 'Handunugoda Tea Estate, home of Virgin White Tea — a real tea-country experience without the hill-country drive.', image: 'photos/tea-plantation.jpg' },
     'sinharaja-rainforest': { group: 'Real Experiences', description: 'A guided hike into Sinharaja, a UNESCO World Heritage rainforest, departing from Mirissa.', image: 'photos/sinharaja-forest.jpg' },
     'stilt-fishermen-experience': { group: 'Real Experiences', description: 'Sri Lanka’s iconic stilt fishermen, seen along the South Coast — the honest story, and how to actually see it.', image: 'photos/stilt-fishermen.jpg' },
