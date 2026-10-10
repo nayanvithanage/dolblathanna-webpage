@@ -1028,3 +1028,8 @@ body.guide-body {
 .guide-article ~ .product-related {
     margin-top: 2.5rem;
 }
+
+.guide-footer .guide-follow {
+    opacity: 1;
+    margin-bottom: 1rem;
+}

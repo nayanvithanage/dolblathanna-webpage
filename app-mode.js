@@ -292,9 +292,11 @@ function renderAbout() {
     if (social) {
         social.innerHTML = '';
         const links = config.contact.social;
-        if (links.facebook) social.innerHTML += `<a href="${links.facebook}" target="_blank" rel="noopener" class="planner-card">Facebook</a>`;
-        if (links.instagram) social.innerHTML += `<a href="${links.instagram}" target="_blank" rel="noopener" class="planner-card">Instagram</a>`;
-        if (links.tiktok) social.innerHTML += `<a href="${links.tiktok}" target="_blank" rel="noopener" class="planner-card">TikTok</a>`;
+        const counts = config.contact.followers || {};
+        const lbl = (name, k) => name + (counts[k] ? ` (${counts[k]})` : '');
+        if (links.facebook) social.innerHTML += `<a href="${links.facebook}" target="_blank" rel="noopener" class="planner-card">${lbl('Facebook', 'facebook')}</a>`;
+        if (links.instagram) social.innerHTML += `<a href="${links.instagram}" target="_blank" rel="noopener" class="planner-card">${lbl('Instagram', 'instagram')}</a>`;
+        if (links.tiktok) social.innerHTML += `<a href="${links.tiktok}" target="_blank" rel="noopener" class="planner-card">${lbl('TikTok', 'tiktok')}</a>`;
     }
 }
 

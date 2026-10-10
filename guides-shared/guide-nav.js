@@ -33,6 +33,8 @@
 // Topic ids/parent paths are NOT derivable from filenames (e.g. ahangama-day-trip-guide.html maps to
 // getting-around, not anything guessable from its own name) so this must stay explicit, page-authored
 // data rather than something this script infers.
+
+import { config } from '../config.js';
 import { mountQuickLauncher } from './quick-launcher.js';
 
 (function () {
@@ -71,7 +73,14 @@ import { mountQuickLauncher } from './quick-launcher.js';
 
     const footer = document.createElement('footer');
     footer.className = 'guide-footer';
+    const social = config.contact.social;
+    const counts = config.contact.followers || {};
+    const followLinks = [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['tiktok', 'TikTok']]
+        .filter(([k]) => social[k])
+        .map(([k, label]) => `<a href="${social[k]}" target="_blank" rel="noopener">${label}${counts[k] ? ' (' + counts[k] + ')' : ''}</a>`)
+        .join(' &middot; ');
     footer.innerHTML = `
+        <p class="guide-follow">Follow along for new South Coast guides and local updates: ${followLinks}</p>
         <p>&copy; ${new Date().getFullYear()} Dolblathanna, Ahangama. All rights reserved.</p>
         <p><a href="${backHref}">&larr; ${backLabel}</a> &middot; <a href="${guidesUrl}" class="${isGuidesIndex ? 'active' : ''}">All South Coast Guides</a></p>
     `;
