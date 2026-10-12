@@ -84,7 +84,7 @@ const SECTOR_COPY = {
     },
     food: {
         icon: '🍛', blurb: 'Where we actually eat around Ahangama.',
-        image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800',
+        image: 'photos/rice-and-curry.jpg',
         intro: "Ahangama's food scene runs the full range — beachfront rice-and-curry shacks that have fed the same regulars for years, and the flat-white cafes that have grown up around the surf crowd. You won't go hungry or broke either way; the only real decision is which kind of meal fits which kind of day.",
         readMore: [],
         nextUp: [{ id: 'travel-insurance', blurb: 'Check the fine print before something goes wrong.' }]
@@ -201,7 +201,7 @@ const GUIDE_COPY = {
     'getting-around-ahangama': { group: 'Daily Transport', description: 'Tuk-tuks, scooters, and private vans — the full breakdown of costs, what to rent, and our honest recommendation.', image: 'photos/galle-tuk-tuk.jpg' },
     'coastal-train-galle-matara': { group: 'Scenic Journeys', description: 'One of the great budget travel experiences on this coast — open doors, ocean views, and how to actually ride it.', image: 'https://images.unsplash.com/photo-1781749809764-b8f3e740dbe5?auto=format&fit=crop&q=80&w=600' },
     'ahangama-day-trip': { group: 'Day Trips & Excursions', description: 'Galle Fort, Koggala Lake, Yala safari — what’s realistic as a day trip and how to get there.', image: 'https://images.unsplash.com/photo-1778563623975-582b7723d026?auto=format&fit=crop&q=80&w=600' },
-    'best-cafes-restaurants-ahangama': { group: 'Where We Eat', description: 'Every price range covered — updated by the Dolblathanna team.', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=600' },
+    'best-cafes-restaurants-ahangama': { group: 'Where We Eat', description: 'Every price range covered — updated by the Dolblathanna team.', image: 'photos/rice-and-curry.jpg' },
     'sri-lanka-travel-insurance-guide': { group: 'Get Covered', description: 'Surf, scooter, and medical cover explained — what to check before you buy a policy.', image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=600' },
     'sri-lanka-beach-packing-guide': { group: 'What to Bring', description: 'Climate, reef-safe sunscreen, plug types, and modest-dress essentials for temples.', image: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?auto=format&fit=crop&q=80&w=600' },
     'ahangama-vs-weligama': { group: 'Compare Towns', description: 'An honest comparison of Sri Lanka’s two neighbouring south coast surf towns to help you decide where to base your trip.', image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&q=80&w=600' },
